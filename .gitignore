@@ -1,15 +1,8 @@
-# Prerequisites
-*.d
-
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
 
 # Linker files
 *.ilk
@@ -22,10 +15,6 @@
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
-
 # Compiled Static libraries
 *.lai
 *.la
@@ -37,5 +26,12 @@
 *.out
 *.app
 
-# debug information files
+# Debug information files
 *.dwo
+
+# IDE
+.vs
+.idea
+
+# Build System
+Build

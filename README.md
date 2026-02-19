@@ -1,2 +1,3 @@
-# just-engine
-Game engine
+# Just Engine
+
+Just a game engine
