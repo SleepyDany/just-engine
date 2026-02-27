@@ -2,6 +2,10 @@
 
 Just a game engine
 
+## Quick start
+
+Run ./generate_prj_files.bat
+
 ### Code style
 1. .clang-format
 
