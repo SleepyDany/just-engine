@@ -18,7 +18,6 @@ project(JustEngine
 
 set(CMAKE_SUPPRESS_REGENERATION ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-# TODO: doesn't work for Rider
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     PROPERTY
     VS_STARTUP_PROJECT ${PROJECT_NAME}
@@ -33,19 +32,32 @@ set(CMAKE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
 
-set(ENGINE_SOURCES Source/main.cpp)
-set(ENGINE_INCLUDES)
-
-# TODO: doesn't work for Rider
-source_group("Source"
-    FILES
-    ${ENGINE_SOURCES}
-    ${ENGINE_INCLUDES}
+set(ENGINE_SOURCES
+    .clang-format
+    .gitignore
+    CMakeLists.txt
+    README.md
+    Source/Core/CoreMain.cpp
+    Source/Core/CoreDefines.h
+    Source/Core/Types/BaseTypes.h
+    Source/Core/Types/NonCopyable.h
+    Source/Core/Log/LogDetails.cpp
+    Source/Core/Log/LogDetails.h
+    Source/Core/Log/Logger.cpp
+    Source/Core/Log/Logger.h
+    Source/Core/Log/LoggerImpl.cpp
+    Source/Core/Log/LoggerImpl.h
 )
+
+set(ENGINE_INCLUDES
+    Source/
+    Source/Core
+)
+
+source_group(TREE Source)
 
 add_executable(${PROJECT_NAME}
     ${ENGINE_SOURCES}
-    ${ENGINE_INCLUDES}
 )
 
 #------------------------------
@@ -54,7 +66,7 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/Source
+    ${ENGINE_INCLUDES}
 )
 
 if (MSVS)
