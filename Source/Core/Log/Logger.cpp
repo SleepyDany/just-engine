@@ -2,88 +2,80 @@
 
 #include "LoggerImpl.h"
 
-#include <Log/LogDetails.h>
+#include <Log/LogMisc.h>
 
-namespace JE
+using namespace JE;
+
+FLogger::FLogger(
+	const FLogCategory& _category, const TLogFormatter& _formatter, const std::vector<std::shared_ptr<FLoggerImpl>>& _loggerImpls)
+	: Category(_category)
+	, Formatter(_formatter)
+	, LoggerImpls(_loggerImpls)
 {
-	template <class TLogCategory>
-	FLogger<TLogCategory>::FLogger(ELogVerbosity _verbosity, TLogFormatter&& _formatter)
-		: Verbosity(_verbosity)
-		, DefaultFormatter(std::move(_formatter))
+}
+
+ELogVerbosity FLogger::GetVerbosity() const
+{
+	return Category.GetVerbosity();
+}
+
+void FLogger::SetVerbosity(ELogVerbosity _verbosity)
+{
+	Category.SetVerbosity(_verbosity);
+}
+
+FLogCategory& FLogger::GetCategory()
+{
+	return Category;
+}
+
+const FLogCategory& FLogger::GetCategory() const
+{
+	return Category;
+}
+
+const TLogFormatter& FLogger::GetFormatter() const
+{
+	return Formatter;
+}
+
+void FLogger::SetFormatter(const TLogFormatter& _formatter)
+{
+	Formatter = _formatter;
+}
+
+void FLogger::Log(const FLogRecord& _logRecord)
+{
+	const ELogVerbosity verbosity = GetVerbosity();
+	if (_logRecord.Verbosity > verbosity)
 	{
+		return;
 	}
 
-	template <class TLogCategory>
-	FLogger<TLogCategory>& FLogger<TLogCategory>::GetInstance()
+	for (auto& impl : LoggerImpls)
 	{
-		static FLogger<TLogCategory> instance;
-		return instance;
-	}
-
-	template <class TLogCategory>
-	ELogVerbosity FLogger<TLogCategory>::GetVerbosity() const
-	{
-		return Verbosity;
-	}
-
-	template <class TLogCategory>
-	void FLogger<TLogCategory>::SetVerbosity(ELogVerbosity _verbosity)
-	{
-		Verbosity = _verbosity;
-	}
-
-	template <class TLogCategory>
-	FLogCategory::ID FLogger<TLogCategory>::GetCategoryId() const
-	{
-		return Category.GetId();
-	}
-
-	template <class TLogCategory>
-	const TLogFormatter& FLogger<TLogCategory>::GetDefaultFormatter() const
-	{
-		return DefaultFormatter;
-	}
-
-	template <class TLogCategory>
-	void FLogger<TLogCategory>::SetDefaultFormatter(TLogFormatter&& _defaultFormatter)
-	{
-		DefaultFormatter = std::move(_defaultFormatter);
-	}
-
-	template <class TLogCategory>
-	void FLogger<TLogCategory>::Log(const FLogDetails& _logDetails)
-	{
-		if (_logDetails.Verbosity < Verbosity)
+		if (!impl)
 		{
-			return;
+			continue;
 		}
 
-		for (auto& impl : LoggerImpls)
-		{
-			if (!impl)
-			{
-				continue;
-			}
-
-			const TLogFormatter& formatter = impl->GetFormatter() ? impl->GetFormatter() : DefaultFormatter;
-			impl->Log(formatter(_logDetails));
-		}
-
-		if (Verbosity == ELogVerbosity::Fatal || bAlwaysBreakOnLog)
-		{
-			JE_PLATFORM_BREAK();
-		}
+		const TLogFormatter& formatter = impl->GetFormatter() ? impl->GetFormatter() : Formatter;
+		impl->Log(formatter(_logRecord));
 	}
 
-	template <class TLogCategory>
-	void FLogger<TLogCategory>::RegisterImpl(const std::shared_ptr<FLoggerImpl>& _logImpl)
+	if (verbosity == ELogVerbosity::Fatal)
 	{
-		LoggerImpls.emplace_back(_logImpl);
+		JE_PLATFORM_BREAK();
 	}
+}
 
-	template <class TLogCategory>
-	void FLogger<TLogCategory>::UnregisterImpl(const std::shared_ptr<FLoggerImpl>& _logImpl)
-	{
-		LoggerImpls.erase(std::remove(LoggerImpls.begin(), LoggerImpls.end(), _logImpl), LoggerImpls.end());
-	}
-} // namespace JE
+void FLogger::RegisterImpl(const std::shared_ptr<FLoggerImpl>& _logImpl)
+{
+	// TODO: check for duplicates
+	LoggerImpls.emplace_back(_logImpl);
+}
+
+void FLogger::UnregisterImpl(const std::shared_ptr<FLoggerImpl>& _logImpl)
+{
+	LoggerImpls.erase(std::remove(LoggerImpls.begin(), LoggerImpls.end(), _logImpl), LoggerImpls.end());
+}

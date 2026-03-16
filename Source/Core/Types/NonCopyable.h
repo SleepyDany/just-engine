@@ -4,16 +4,14 @@
 
 namespace JE
 {
-	class JE_API NonCopyable
+	class JE_API FNonCopyable
 	{
 	protected:
-		NonCopyable() = default;
-		~NonCopyable() = default;
+		FNonCopyable() = default;
+		virtual ~FNonCopyable() = default;
 
-		NonCopyable(const NonCopyable&) = delete;
-		NonCopyable& operator=(const NonCopyable&) = delete;
-
-		NonCopyable(NonCopyable&&) = delete;
-		NonCopyable& operator=(NonCopyable&&) = delete;
+		FNonCopyable(const FNonCopyable&) = delete;
+		FNonCopyable& operator=(const FNonCopyable&) = delete;
 	};
+
 } // namespace JE

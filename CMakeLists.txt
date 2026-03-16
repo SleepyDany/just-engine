@@ -39,14 +39,22 @@ set(ENGINE_SOURCES
     README.md
     Source/Core/CoreMain.cpp
     Source/Core/CoreDefines.h
+    Source/Core/LogTemp.h
     Source/Core/Types/BaseTypes.h
     Source/Core/Types/NonCopyable.h
-    Source/Core/Log/LogDetails.cpp
-    Source/Core/Log/LogDetails.h
+    Source/Core/Log/LogMisc.cpp
+    Source/Core/Log/LogMisc.h
     Source/Core/Log/Logger.cpp
     Source/Core/Log/Logger.h
     Source/Core/Log/LoggerImpl.cpp
     Source/Core/Log/LoggerImpl.h
+    Source/Core/Log/Impls/ConsoleLoggerImpl.h
+    Source/Core/Log/Impls/ConsoleLoggerImpl.cpp
+    Source/Core/Log/Impls/FileLoggerImpl.h
+    Source/Core/Log/Impls/FileLoggerImpl.cpp
+    Source/Core/Log/LogManager.cpp
+    Source/Core/Log/LogManager.h
+    Source/Core/Log/LogMacros.h
 )
 
 set(ENGINE_INCLUDES
@@ -69,6 +77,6 @@ target_include_directories(${PROJECT_NAME}
     ${ENGINE_INCLUDES}
 )
 
-if (MSVS)
-    target_compile_options(${PROJECT_NAME} ${CMAKE_CXX_FLAGS} "/MP")
+if (MSVC)
+    target_compile_options(${PROJECT_NAME} PUBLIC ${CMAKE_CXX_FLAGS} /MP /Zc:preprocessor)
 endif()

@@ -1,55 +1,29 @@
 #include "LoggerImpl.h"
 
-#include <iostream>
-#include <ostream>
+using namespace JE;
 
-namespace JE
+FLoggerImpl::FLoggerImpl(const ID& _id, TLogFormatter&& _logFormatter)
+	: Formatter(std::move(_logFormatter))
+	, Id(_id)
 {
-	// ConsoleLogSink
+}
 
-	FLoggerImpl::FLoggerImpl(TLogFormatter&& _logFormatter)
-		: Formatter(std::move(_logFormatter))
-	{
-	}
+const FLoggerImpl::ID& FLoggerImpl::GetId() const
+{
+	return Id;
+}
 
-	const TLogFormatter& FLoggerImpl::GetFormatter() const
-	{
-		return Formatter;
-	}
+const TLogFormatter& FLoggerImpl::GetFormatter() const
+{
+	return Formatter;
+}
 
-	void FConsoleLoggerImpl::Log(const FLogDetails& _logDetails)
-	{
-	}
+void FLoggerImpl::SetFormatter(const TLogFormatter& _formatter)
+{
+	Formatter = _formatter;
+}
 
-	void FConsoleLoggerImpl::Log(const std::string& _message)
-	{
-		std::cout << _message << std::endl;
-	}
-
-	// FileLogSink
-
-	FFileLoggerImpl::FFileLoggerImpl(const std::filesystem::path& _path)
-	{
-		Path = _path;
-		File.open(Path, std::ios::out | std::ios::trunc);
-	}
-
-	FFileLoggerImpl::~FFileLoggerImpl()
-	{
-		File.close();
-
-		FLoggerImpl::~FLoggerImpl();
-	}
-
-	void FFileLoggerImpl::Log(const FLogDetails& _logDetails)
-	{
-	}
-
-	void FFileLoggerImpl::Log(const std::string& _message)
-	{
-		if (File.is_open() && std::filesystem::file_size(Path) < LimitSize)
-		{
-			File << _message;
-		}
-	}
-} // namespace JE
+void FLoggerImpl::Log(const FLogRecord& _logRecord)
+{
+	Log(Formatter ? Formatter(_logRecord) : _logRecord.Message);
+}
