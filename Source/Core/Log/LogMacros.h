@@ -17,10 +17,13 @@
 	{                                                                                                                                   \
 		if constexpr (JE::ELogVerbosity::Verbosity > JE::ELogVerbosity::None && JE::ELogVerbosity::Verbosity <= JE::ELogVerbosity::MAX) \
 		{                                                                                                                               \
+			/** TODO: do we need std::source_location::current()?  */                                                                   \
 			const JE::FLogRecord logRecord{JE_PRIVATE_GET_LOG_CATEGORY(CategoryName),                                                   \
 				JE::ELogVerbosity::Verbosity,                                                                                           \
 				std::format(Format __VA_OPT__(, ) __VA_ARGS__),                                                                         \
-				std::source_location::current(),                                                                                        \
+				__FILE__,                                                                                                               \
+				__FUNCTION__,                                                                                                           \
+				__LINE__,                                                                                                               \
 				std::chrono::system_clock::now()};                                                                                      \
 			JE::FLogManager::Get().GetLogger(JE_PRIVATE_GET_LOG_CATEGORY(CategoryName)).Log(logRecord);                                 \
 		}                                                                                                                               \

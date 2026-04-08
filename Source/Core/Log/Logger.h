@@ -26,7 +26,7 @@ namespace JE
 		std::vector<std::shared_ptr<FLoggerImpl>> LoggerImpls;
 
 		//- Lifecycle --------------------
-		// TODO: Reworks NonCopyable objects creation!
+		// TODO: Rework NonCopyable objects creation!
 	public:
 		FLogger(const FLogCategory& _logCategory,
 			const TLogFormatter& _formatter = nullptr,

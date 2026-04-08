@@ -11,6 +11,9 @@
 
 namespace JE
 {
+	// TODO: rework loggers creation by manager
+	// TODO: add loggers custom impls creation/registration + macro
+
 	class FLogManager : public FNonCopyable
 	{
 		//- Variables --------------------
@@ -22,7 +25,7 @@ namespace JE
 		/** Default logger's implementations. */
 		std::vector<std::shared_ptr<FLoggerImpl>> DefaultLoggerImpls;
 
-		/** Default logger's formatter */
+		/** Default logger's formatter. */
 		TLogFormatter DefaultFormatter;
 
 		//- Lifecycle --------------------

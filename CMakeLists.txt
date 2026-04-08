@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.28)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 project(JustEngine
@@ -39,7 +39,6 @@ set(ENGINE_SOURCES
     README.md
     Source/Core/CoreMain.cpp
     Source/Core/CoreDefines.h
-    Source/Core/LogTemp.h
     Source/Core/Types/BaseTypes.h
     Source/Core/Types/NonCopyable.h
     Source/Core/Log/LogMisc.cpp
@@ -55,6 +54,8 @@ set(ENGINE_SOURCES
     Source/Core/Log/LogManager.cpp
     Source/Core/Log/LogManager.h
     Source/Core/Log/LogMacros.h
+    Source/Core/Utilities/StringUtilities.h
+    Source/Core/Utilities/StringUtilities.cpp
 )
 
 set(ENGINE_INCLUDES

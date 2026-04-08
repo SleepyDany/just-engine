@@ -3,14 +3,21 @@
 #include "Log/LogMacros.h"
 
 #include <cassert>
+#include <filesystem>
+#include <map>
+#include <set>
 
 using namespace JE;
 
-FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const std::filesystem::path& _directory, const std::string& _name)
+FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const std::filesystem::path& _filePath)
 	: FLoggerImpl(_id)
-	, Directory(_directory)
-	, FileName(_name)
+	, FilePath(_filePath)
 {
+	assert(!_filePath.empty());
+	assert(_filePath.has_filename());
+
+	FilePath = _filePath;
+
 	Open();
 }
 
@@ -20,73 +27,102 @@ FFileLoggerImpl::~FFileLoggerImpl()
 	FLoggerImpl::~FLoggerImpl();
 }
 
-void FFileLoggerImpl::SetFileName(const std::string& _newFileName)
+const std::filesystem::path& FFileLoggerImpl::GetFilePath() const
+{
+	return FilePath;
+}
+
+void FFileLoggerImpl::SetFilePath(const std::filesystem::path& _newFilePath)
 {
 	Close();
-	FileName = _newFileName;
+
+	assert(!_newFilePath.empty());
+	assert(_newFilePath.has_filename());
+	FilePath = _newFilePath;
+
 	Open();
 }
 
-void FFileLoggerImpl::SetLimitSize(uint64 _newLimitSize)
+uint64 FFileLoggerImpl::GetMaxSize() const
 {
-	LimitSize = _newLimitSize;
-	if (GetCurrentSize() < LimitSize)
+	return MaxSize;
+}
+
+void FFileLoggerImpl::SetMaxSize(uint64 _newMaxSize)
+{
+	MaxSize = _newMaxSize;
+	if (GetCurrentSize() >= MaxSize)
 	{
 		Close();
 		Open();
 	}
 }
 
-void FFileLoggerImpl::SetFileDirectory(const std::filesystem::path& _newDirectory)
-{
-	Close();
-	Directory = _newDirectory;
-	Open();
-}
-
-const std::string& FFileLoggerImpl::GetFileName() const
-{
-	return FileName;
-}
-
 uint64 FFileLoggerImpl::GetCurrentSize() const
 {
-	return std::filesystem::file_size(Directory / FileName);
+	return std::filesystem::file_size(FilePath);
 }
 
-uint64 FFileLoggerImpl::GetLimitSize() const
+void FFileLoggerImpl::Log(const std::string& _message)
 {
-	return LimitSize;
-}
+	if (File.is_open())
+	{
+		if (GetCurrentSize() >= MaxSize)
+		{
+			Close();
+			Open();
+		}
 
-const std::filesystem::path& FFileLoggerImpl::GetDirectory() const
-{
-	return Directory;
+		File << _message;
+		// TODO: optimize
+		File.flush();
+	}
 }
 
 void FFileLoggerImpl::Open()
 {
-	assert(!FileName.empty() && !Directory.empty());
-	// TODO: check directory exists?
-	File.open(Directory / FileName, std::ios::out | std::ios::trunc);
+	std::filesystem::create_directory(FilePath.parent_path());
+
+	// rename existing File to cached format
+	if (std::filesystem::exists(FilePath))
+	{
+		// update file's name
+		const std::string closedFileName = std::format("{}-{:%d.%m.%Y-%H.%M.%OS}{}",
+			FilePath.stem().generic_string(),
+			std::chrono::system_clock::now(),
+			FilePath.extension().generic_string());
+
+		// rename with overwriting if fullFileName already exists
+		std::filesystem::rename(FilePath, FilePath.parent_path() / closedFileName);
+	}
+
+	if (RotationNumber > 1)
+	{
+		const std::string fileName = FilePath.stem().generic_string();
+		std::map<std::filesystem::file_time_type, std::filesystem::path> logFileEntries;
+
+		for (const auto& file_entry : std::filesystem::directory_iterator(FilePath.parent_path()))
+		{
+			if (file_entry.is_regular_file() && file_entry.path().filename().generic_string().contains(fileName))
+			{
+				logFileEntries.try_emplace(file_entry.last_write_time(), file_entry.path());
+			}
+		}
+
+		uint64 curNumber = logFileEntries.size();
+		auto logFileIter = logFileEntries.begin();
+		while (curNumber >= RotationNumber)
+		{
+			std::filesystem::remove(logFileIter->second);
+			++logFileIter;
+			--curNumber;
+		}
+	}
+
+	File.open(FilePath, std::ios::out | std::ios::trunc);
 }
 
 void FFileLoggerImpl::Close()
 {
 	File.close();
-
-	// update file's name
-	const auto now = std::chrono::system_clock::now();
-	const std::string fullFileName = std::format("{}-{:%d.%m.%Y-%H.%M.%OS}.log", FileName, now);
-
-	// rename with overwriting if fullFileName already exists
-	std::filesystem::rename(Directory / FileName, Directory / fullFileName);
-}
-
-void FFileLoggerImpl::Log(const std::string& _message)
-{
-	if (File.is_open() && std::filesystem::file_size(Directory) < LimitSize)
-	{
-		File << _message;
-	}
 }

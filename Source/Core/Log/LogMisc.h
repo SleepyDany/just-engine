@@ -86,7 +86,9 @@ namespace JE
 		const FLogCategory& LogCategory;
 		ELogVerbosity Verbosity;
 		std::string Message;
-		std::source_location SourceLocation;
+		std::string_view File;
+		std::string_view Function;
+		uint32 Line;
 		std::chrono::system_clock::time_point TimePoint;
 	};
 
