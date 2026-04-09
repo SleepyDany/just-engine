@@ -11,7 +11,7 @@ namespace JE
 {
 	class FLoggerImpl;
 
-	class JE_API FLogger final : private FNonCopyable
+	class JE_API FLogger // TODO: final : private FNonCopyable
 	{
 		friend class FLogManager;
 

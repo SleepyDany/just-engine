@@ -8,8 +8,9 @@ namespace JE
 	{
 	protected:
 		FNonCopyable() = default;
-		virtual ~FNonCopyable() = default;
+		~FNonCopyable() = default;
 
+	private:
 		FNonCopyable(const FNonCopyable&) = delete;
 		FNonCopyable& operator=(const FNonCopyable&) = delete;
 	};
