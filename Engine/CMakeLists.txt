@@ -86,6 +86,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER Engine)
 je_create_ide_folders(JE_ENGINE_SOURCES)
 je_create_ide_folders(Source/Core/CoreMain.cpp)
 
+# je_setup_pch(${PROJECT_NAME}App Source/Core/CorePch.cpp Source/Core/CorePch.cpp Source/Core/CoreMain.cpp)
+je_setup_pch(${PROJECT_NAME} Source/Core/CorePch.cpp Source/Core/CorePch.cpp JE_ENGINE_SOURCES)
+
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PUBLIC ${CMAKE_CXX_FLAGS} /MP /Zc:preprocessor)
     target_compile_options(${PROJECT_NAME}App PUBLIC ${CMAKE_CXX_FLAGS} /MP /Zc:preprocessor)

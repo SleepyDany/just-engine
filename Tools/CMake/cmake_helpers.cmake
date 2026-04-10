@@ -31,3 +31,24 @@ macro(je_create_ide_folders SOURCE_FILES)
         source_group(${GROUP_PATH} FILES ${FILE})
     endforeach()
 endmacro()
+
+function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
+    if (MSVC)
+        # extract pch filename
+        get_filename_component(PCH_HEADER_NAME ${PCH_HEADER} NAME)
+
+        # create by /Yc .pch file from PCH_SOURCE
+        target_sources(${TARGET} PRIVATE ${PCH_HEADER} ${PCH_SOURCE})
+        set_source_files_properties(${PCH_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc${PCH_HEADER_NAME}")
+
+        # mark all other .cpp (except PCH_SOURCE) to use .pch file
+        foreach(FILE ${SOURCE_FILES})
+            if (${FILE} MATCHES "\\.cpp$" AND NOT ${FILE} STREQUAL ${PCH_SOURCE})
+                set_source_files_properties(${FILE} PROPERTIES COMPILE_FLAGS "/Yu${PCH_HEADER_NAME}")
+            endif()
+        endforeach()
+
+        # add PCH_HEADER to TARGET includes
+        target_compile_options(${TARGET} PRIVATE "/FI${PCH_HEADER_NAME}")
+    endif()
+endfunction()
