@@ -2,7 +2,6 @@
 
 #include <Core/CoreDefines.h>
 #include <Core/Log/LogMisc.h>
-#include <Core/Types/NonCopyable.h>
 
 #include <memory>
 #include <vector>

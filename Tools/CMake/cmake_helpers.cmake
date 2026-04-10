@@ -1,0 +1,33 @@
+macro(je_system_info)
+    message("")
+    message("#---------System info----------")
+
+    if (WIN32)
+        message("OS: Windows")
+    elseif (LINUX)
+        message("OS: Linux")
+    endif()
+
+    message("Compiler: ${CMAKE_CXX_COMPILER_ID}")
+    if (MSVC)
+        message("MSVC version: ${MSVC_VERSION}")
+        message("MSVC toolset: ${MSVC_TOOLSET_VERSION}")
+    endif()
+
+    message("Compiler C++ flags: ${CMAKE_CXX_FLAGS}")
+    message("Compiler C++ debug flags: ${CMAKE_CXX_FLAGS_DEBUG}")
+    message("Compiler C++ release flags: ${CMAKE_CXX_FLAGS_RELEASE}")
+    message("Configuration types: ${CMAKE_CONFIGURATION_TYPES}")
+    
+    message("#------------------------------")
+    message("")
+endmacro()
+
+macro(je_create_ide_folders SOURCE_FILES)
+    foreach(FILE IN LISTS ${SOURCE_FILES})
+        get_filename_component(FILE_PATH ${FILE} PATH)
+        string(REPLACE ${PROJECT_SOURCE_DIR} "" FILE_PATH_REL ${FILE_PATH})
+        string(REPLACE "/" "\\" GROUP_PATH ${FILE_PATH_REL})
+        source_group(${GROUP_PATH} FILES ${FILE})
+    endforeach()
+endmacro()

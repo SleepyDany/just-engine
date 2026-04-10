@@ -4,6 +4,8 @@
 #include "Impls/FileLoggerImpl.h"
 
 #include <cassert>
+#include <filesystem>
+#include <format>
 
 using namespace JE;
 
@@ -13,17 +15,15 @@ FLogManager::FLogManager()
 	std::shared_ptr<FLoggerImpl> newLoggerImpl = RegisterLoggerImpl(consoleLoggerImpl);
 	DefaultLoggerImpls.emplace_back(newLoggerImpl);
 
-	// TODO: manage how to setup default engine root path
 	// TODO: setup logs path from settings
 	FFileLoggerImpl* fileLoggerImpl =
-		new FFileLoggerImpl("DefaultFileLogger", std::filesystem::current_path() / "../Saved/Logs/JustEngine.log");
+		new FFileLoggerImpl("DefaultFileLogger", std::filesystem::current_path() / "../../Saved/Logs/JustEngine.log");
 	newLoggerImpl = RegisterLoggerImpl(fileLoggerImpl);
 	DefaultLoggerImpls.emplace_back(newLoggerImpl);
 
 	DefaultFormatter = [](const FLogRecord& _logRecord)
 	{
 		// TODO: fix time shift (local time)
-		// TODO: fix long file-name (full path)
 		return std::format("[{:%d.%m.%Y %H:%M:%S}]   {:<7}   {:<20}   {}   [{} {}:{}]\n",
 			_logRecord.TimePoint,
 			JE::ToString(_logRecord.Verbosity),

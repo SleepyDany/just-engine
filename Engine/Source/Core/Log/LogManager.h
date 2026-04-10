@@ -3,7 +3,6 @@
 #include "LogMisc.h"
 #include "Logger.h"
 #include "LoggerImpl.h"
-#include "Types/NonCopyable.h"
 
 #include <memory>
 #include <unordered_map>

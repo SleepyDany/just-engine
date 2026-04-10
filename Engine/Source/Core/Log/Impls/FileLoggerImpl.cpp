@@ -3,9 +3,7 @@
 #include "Log/LogMacros.h"
 
 #include <cassert>
-#include <filesystem>
 #include <map>
-#include <set>
 
 using namespace JE;
 

@@ -1,7 +1,6 @@
 #include "Logger.h"
 
 #include "LoggerImpl.h"
-
 #include <Log/LogMisc.h>
 
 using namespace JE;
