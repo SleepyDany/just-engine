@@ -12,6 +12,11 @@
 
 #define JE_PRIVATE_GET_LOG_CATEGORY(CategoryName) ::CategoryName
 
+#define JE_GET_LOG_VERBOSITY(CategoryName) JE::FLogManager::Get().GetLogger(JE_PRIVATE_GET_LOG_CATEGORY(CategoryName)).GetVerbosity()
+
+#define JE_SET_LOG_VERBOSITY(CategoryName, Verbosity)                                                                       \
+	JE::FLogManager::Get().GetLogger(JE_PRIVATE_GET_LOG_CATEGORY(CategoryName)).SetVerbosity(JE::ELogVerbosity::Verbosity);
+
 #define JE_PRIVATE_LOG_IMPL(CategoryName, Verbosity, Format, ...)                                                                       \
 	do                                                                                                                                  \
 	{                                                                                                                                   \

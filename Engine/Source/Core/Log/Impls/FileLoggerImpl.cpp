@@ -2,9 +2,6 @@
 
 #include "Log/LogMacros.h"
 
-#include <cassert>
-#include <map>
-
 using namespace JE;
 
 FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const std::filesystem::path& _filePath)

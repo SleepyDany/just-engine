@@ -1,6 +1,5 @@
-#include "Log/LogMacros.h"
+#include "Log/Log.h"
 
-JE_DEFINE_LOG_CATEGORY(LogCore, Log);
 
 int main()
 {

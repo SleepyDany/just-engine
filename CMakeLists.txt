@@ -36,6 +36,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${JE_BINARY_DIR})
 include(${JE_TOOLS_DIR}/CMake/cmake_helpers.cmake)
 
 add_subdirectory(Engine)
-set_property(DIRECTORY ${JE_ROOT_DIR} PROPERTY VS_STARTUP_PROJECT JustEngineApp)
+set_property(DIRECTORY ${JE_ROOT_DIR} PROPERTY VS_STARTUP_PROJECT JustEngineExe)
 
 je_system_info()

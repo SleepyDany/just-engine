@@ -1,8 +1,5 @@
 #pragma once
 
-#include <format>
-#include <ranges>
-
 #define JE_PRIVATE_TYPE_FORMATTER_IMPL(Type, FormatterImpl)                 \
 	template <>                                                             \
 	struct std::formatter<Type>                                             \

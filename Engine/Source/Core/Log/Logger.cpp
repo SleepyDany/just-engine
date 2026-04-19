@@ -1,7 +1,7 @@
 #include "Logger.h"
 
-#include "LoggerImpl.h"
-#include <Log/LogMisc.h>
+#include "Log/LogMisc.h"
+#include "Log/LoggerImpl.h"
 
 using namespace JE;
 

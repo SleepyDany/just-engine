@@ -2,7 +2,9 @@
 
 // C++ includes
 #include <algorithm>
+#include <cassert>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <filesystem>
 #include <format>
@@ -18,6 +20,8 @@
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 // JE includes
+#include "CoreDefines.h"

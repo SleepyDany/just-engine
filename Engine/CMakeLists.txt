@@ -12,6 +12,8 @@ project(JustEngine
     LANGUAGES CXX
 )
 
+option(JE_USE_SHARED "Build JustEngine as shared library (.dll/.so)." FALSE)
+
 #------------------------------
 # Common options
 #------------------------------
@@ -24,13 +26,17 @@ set(JE_ENGINE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # Project setup
 #------------------------------
 
-add_executable(${PROJECT_NAME}App
+add_executable(${PROJECT_NAME}Exe
     Source/Core/CoreMain.cpp
 )
 
-add_library(${PROJECT_NAME}
-    STATIC
-)
+if (JE_USE_SHARED)
+    add_library(${PROJECT_NAME} SHARED)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC JE_SHARED_LIBRARY)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE JE_EXPORT)
+else()
+    add_library(${PROJECT_NAME} STATIC)
+endif()
 
 set(JE_ENGINE_SOURCES
     # TODO: add to separate ide folder (e.x. Tools/)
@@ -43,6 +49,7 @@ set(JE_ENGINE_SOURCES
     Source/Core/CorePch.cpp
     Source/Core/Types/BaseTypes.h
     Source/Core/Types/NonCopyable.h
+    Source/Core/Log/Log.h
     Source/Core/Log/LogMisc.cpp
     Source/Core/Log/LogMisc.h
     Source/Core/Log/Logger.cpp
@@ -69,27 +76,28 @@ target_sources(${PROJECT_NAME}
     PRIVATE
     ${JE_ENGINE_SOURCES}
 )
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC
     ${JE_ENGINE_INCLUDES}
 )
 
-target_link_libraries(${PROJECT_NAME}App ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}Exe PRIVATE ${PROJECT_NAME})
 
 #------------------------------
 # Target options
 #------------------------------
 
-set_target_properties(${PROJECT_NAME}App PROPERTIES FOLDER Engine)
+set_target_properties(${PROJECT_NAME}Exe PROPERTIES FOLDER Engine)
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER Engine)
 
 je_create_ide_folders(JE_ENGINE_SOURCES)
 je_create_ide_folders(Source/Core/CoreMain.cpp)
 
-# je_setup_pch(${PROJECT_NAME}App Source/Core/CorePch.cpp Source/Core/CorePch.cpp Source/Core/CoreMain.cpp)
+# je_setup_pch(${PROJECT_NAME}Exe Source/Core/CorePch.cpp Source/Core/CorePch.cpp Source/Core/CoreMain.cpp)
 je_setup_pch(${PROJECT_NAME} Source/Core/CorePch.cpp Source/Core/CorePch.cpp JE_ENGINE_SOURCES)
 
 if (MSVC)
-    target_compile_options(${PROJECT_NAME} PUBLIC ${CMAKE_CXX_FLAGS} /MP /Zc:preprocessor)
-    target_compile_options(${PROJECT_NAME}App PUBLIC ${CMAKE_CXX_FLAGS} /MP /Zc:preprocessor)
+    target_compile_options(${PROJECT_NAME} PUBLIC /MP /Zc:preprocessor)
+    target_compile_options(${PROJECT_NAME}Exe PUBLIC /MP /Zc:preprocessor)
 endif()
