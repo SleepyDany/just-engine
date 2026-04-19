@@ -4,8 +4,6 @@
 
 namespace JE
 {
-	struct FLogRecord;
-
 	class JE_API FConsoleLoggerImpl : public FLoggerImpl
 	{
 		//- Lifecycle --------------------

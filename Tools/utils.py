@@ -37,7 +37,7 @@ class Action(Enum):
 class Settings:
     prj_path = os.path.realpath("./")
     build_dir = "Build"
-    source_dir = "Source"
+    source_dir = "Engine/Source"
     tools_dir = "Tools"
     thirdparty_dir = "ThirdParty"
 
@@ -203,8 +203,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    settings = Settings()
-    settings.verbose = args.verbose
-    action_handler = ActionHandler(args.action, args.configuration, settings)
+    engine_settings = Settings()
+    engine_settings.source_dir = "Engine/Source"
+    engine_settings.verbose = args.verbose
+    action_handler = ActionHandler(args.action, args.configuration, engine_settings)
 
     action_handler.handle()

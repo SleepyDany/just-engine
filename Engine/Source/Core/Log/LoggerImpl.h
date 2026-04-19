@@ -1,9 +1,7 @@
 #pragma once
 
-#include <Core/CoreDefines.h>
-#include <Core/Log/LogMisc.h>
-
-#include <string>
+#include "CoreDefines.h"
+#include "Log/LogMisc.h"
 
 namespace JE
 {

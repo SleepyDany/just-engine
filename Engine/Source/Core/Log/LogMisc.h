@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Core/CoreDefines.h>
-#include <Core/Types/BaseTypes.h>
-#include <chrono>
+#include "CoreDefines.h"
+#include "Types/BaseTypes.h"
 
+#include <chrono>
 #include <functional>
-#include <source_location>
 #include <string>
+#include <string_view>
 
 namespace JE
 {
