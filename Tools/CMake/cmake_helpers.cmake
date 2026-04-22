@@ -45,12 +45,11 @@ function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
     if (MSVC)
         set_source_files_properties(${PCH_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc${PCH_HEADER_NAME}")
     else(CLANG) # Clang
-        # set_source_files_properties(${PCH_SOURCE} PROPERTIES COMPILE_FLAGS "-x c++-header ${CMAKE_CURRENT_LIST_DIR}/${PCH_HEADER} -o ${PROJECT_NAME}.pch")
-        
         set(PCH_HEADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${PCH_HEADER})
-        # set(PCH_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dir/$<CONFIG>/${TARGET}.pch)
+        # TODO: Target.dir/ is default directory for build .obj/.o files...
         set(PCH_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dir/$<CONFIG>/${PCH_HEADER_NAME}.pch)
         
+        # create missing directory and create .pch file with separate command
         add_custom_target(setup_pch_clang
             COMMAND ${CMAKE_COMMAND}
                 -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dir/$<CONFIG>/"
@@ -69,8 +68,6 @@ function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
         if (${FILE} MATCHES "\\.cpp$" AND NOT ${FILE} STREQUAL ${PCH_SOURCE})
             if (MSVC)
                 set_source_files_properties(${FILE} PROPERTIES COMPILE_FLAGS "/Yu${PCH_HEADER_NAME}")
-            elseif (CLANG) # Clang
-                # set_source_files_properties(${FILE} PROPERTIES COMPILER_FLAGS "-include ${CMAKE_CURRENT_SOURCE_DIR}/${PCH_HEADER}")
             endif()
         endif()
     endforeach()
@@ -78,7 +75,7 @@ function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
     # add PCH_HEADER to TARGET includes
     if (MSVC)
         target_compile_options(${TARGET} PRIVATE "/FI${PCH_HEADER_NAME}")
-    elseif (CLANG) # Clang
+    elseif (CLANG)
         target_compile_options(${TARGET} PRIVATE -include ${CMAKE_CURRENT_SOURCE_DIR}/${PCH_HEADER})
     endif()
 endfunction()
