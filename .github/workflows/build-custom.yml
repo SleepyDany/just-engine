@@ -37,6 +37,34 @@ on:
         default: false
         type: boolean
 
+  workflow_call:
+    inputs:
+      branch:
+        description: "Git branch to build"
+        required: true
+        default: "master"
+        type: string
+      platform:
+        description: "Build platform"
+        required: true
+        default: "windows"
+        type: string
+      target:
+        description: "Build target"
+        required: true
+        default: "JustEngineExe"
+        type: string
+      configuration:
+        description: "Build configuration"
+        required: true
+        default: "Debug"
+        type: string
+      upload_artifacts:
+        description: "Upload build artifacts?"
+        required: true
+        default: false
+        type: boolean
+
 jobs:
   build:
     runs-on: ${{github.event.inputs.platform == 'windows' && 'windows-latest' ||
@@ -44,6 +72,14 @@ jobs:
     env:
       CXX: ${{github.event.inputs.platform == 'linux' && 'clang++' || 'cl.exe'}}
     steps:
+      - name: Custom build configuration
+        run: |
+          echo "Git branch: ${{ inputs.branch }}"
+          echo "Platform: ${{ inputs.platform }}"
+          echo "Target: ${{ inputs.target }}"
+          echo "Build type: ${{ inputs.configuration }}"
+          echo "Upload artifacts: ${{ inputs.upload_artifacts }}"
+
       - name: Checkout ${{github.event.inputs.branch}}
         uses: actions/checkout@v5
         with:

@@ -13,31 +13,39 @@ env:
   TARGETS: JustEngineExe
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    env:
-      CC: clang
-      CXX: clang++
-    strategy:
-      matrix:
-        configuration:
-          - Debug
-          - Release
-    steps:
-      - name: Checkout branch ${{github.ref_name}}
-        uses: actions/checkout@v5
+  build-debug:
+    uses: ./.github/workflows/build-custom.yml
+    with:
+      branch: ${{github.ref-name}}
+      platform: "linux"
+      target: "JustEngineExe"
+      configuration: "Debug"
+      upload_artifacts: true
 
-      - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/Build -DCMAKE_BUILD_TYPE=${{matrix.configuration}}
+  build-release:
+    uses: ./.github/workflows/build-custom.yml
+    with:
+      branch: ${{github.ref-name}}
+      platform: "linux"
+      target: "JustEngineExe"
+      configuration: "Release"
+      upload_artifacts: true
 
-      - name: Build
-        run: cmake --build ${{github.workspace}}/Build --config ${{matrix.configuration}} -v --target ${{env.TARGETS}}
+    # steps:
+    #   - name: Checkout branch ${{github.ref_name}}
+    #     uses: actions/checkout@v5
 
-      - name: Archive artifacts
-        run: zip -r artifacts-${{env.PLATFORM}}-${{matrix.configuration}}.zip Build/Binaries/*
+    #   - name: Configure CMake
+    #     run: cmake -B ${{github.workspace}}/Build -DCMAKE_BUILD_TYPE=${{matrix.configuration}}
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifacts-${{env.PLATFORM}}-${{matrix.configuration}}
-          path: artifacts-${{env.PLATFORM}}-${{matrix.configuration}}.zip
+    #   - name: Build
+    #     run: cmake --build ${{github.workspace}}/Build --config ${{matrix.configuration}} -v --target ${{env.TARGETS}}
+
+    #   - name: Archive artifacts
+    #     run: zip -r artifacts-${{env.PLATFORM}}-${{matrix.configuration}}.zip Build/Binaries/*
+
+    #   - name: Upload artifacts
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: artifacts-${{env.PLATFORM}}-${{matrix.configuration}}
+    #       path: artifacts-${{env.PLATFORM}}-${{matrix.configuration}}.zip
