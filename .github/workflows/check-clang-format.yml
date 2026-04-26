@@ -1,20 +1,17 @@
 name: Check clang-format
 
-on: [
-    push,
-    pull_request
-]
+on: [push, pull_request]
 
 jobs:
-    clang-format-check:
-        name: Check clang-format
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout branch ${{github.ref}}
-              uses: actions/checkout@v5
+  clang-format-check:
+    name: Check clang-format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch ${{github.ref}}
+        uses: actions/checkout@v5
 
-            - name: Run clang-format style check
-              uses: jidicula/clang-format-action@v4.18.0
-              with:
-                clang-format-version: '19'
-                check-path: Engine/Source
+      - name: Run clang-format style check
+        uses: jidicula/clang-format-action@v4.18.0
+        with:
+          clang-format-version: "19"
+          check-path: Engine/Source

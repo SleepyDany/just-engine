@@ -1,67 +1,71 @@
 name: Custom build
 
 on:
-    workflow_dispatch:
-        inputs:
-            branch:
-                description: 'Git branch to build'
-                required: true
-                default: 'master'
-                type: string
-            platform:
-                description: 'Build platform'
-                required: true
-                default: 'windows'
-                type: choice
-                options:
-                    - windows
-                    - linux
-            target:
-                description: 'Build target'
-                required: true
-                default: 'JustEngineExe'
-                type: choice
-                options:
-                    - JustEngineExe
-            configuration:
-                description: 'Build configuration'
-                required: true
-                default: 'Debug'
-                type: choice
-                options:
-                    - Debug
-                    - Release
-            upload_artifacts:
-                description: 'Upload build artifacts?'
-                required: true
-                default: false
-                type: boolean 
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Git branch to build"
+        required: true
+        default: "master"
+        type: string
+      platform:
+        description: "Build platform"
+        required: true
+        default: "windows"
+        type: choice
+        options:
+          - windows
+          - linux
+      target:
+        description: "Build target"
+        required: true
+        default: "JustEngineExe"
+        type: choice
+        options:
+          - JustEngineExe
+      configuration:
+        description: "Build configuration"
+        required: true
+        default: "Debug"
+        type: choice
+        options:
+          - Debug
+          - Release
+      upload_artifacts:
+        description: "Upload build artifacts?"
+        required: true
+        default: false
+        type: boolean
 
 jobs:
-    setup:
-        runs-on: ${{github.event.inputs.platform == 'windows' && 'windows-latest' ||
-                    github.event.inputs.platform == 'linux' && 'ubuntu-latest'}}
-        env:
-            CXX: ${{github.event.inputs.platform == 'linux' && 'clang++' || 'cl.exe'}}
-        steps:
-            - name: Checkout ${{github.event.inputs.branch}}
-              uses: actions/checkout@v5
-              with:
-                ref: ${{github.event.inputs.branch}}
+  build:
+    runs-on: ${{github.event.inputs.platform == 'windows' && 'windows-latest' ||
+      github.event.inputs.platform == 'linux' && 'ubuntu-latest'}}
+    env:
+      CXX: ${{github.event.inputs.platform == 'linux' && 'clang++' || 'cl.exe'}}
+    steps:
+      - name: Checkout ${{github.event.inputs.branch}}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{github.event.inputs.branch}}
 
-            - name: Configure CMake
-              run: cmake -B ${{github.workspace}}/Build -DCMAKE_BUILD_TYPE=${{github.event.inputs.configuration}}
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/Build -DCMAKE_BUILD_TYPE=${{github.event.inputs.configuration}}
 
-            - name: Build
-              run: cmake --build ${{github.workspace}}/Build --config ${{github.event.inputs.configuration}} -v --target ${{github.event.inputs.target}}
+      - name: Build
+        run: cmake --build ${{github.workspace}}/Build --config ${{github.event.inputs.configuration}} -v --target ${{github.event.inputs.target}}
 
-            - name: Archive artifacts
-              if: github.event.inputs.upload_artifacts
-              run: zip -r artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}.zip Build/Binaries/*
+      - name: Archive artifacts
+        if: github.event.inputs.upload_artifacts && github.event.inputs.platform == 'linux'
+        run: zip -r artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}.zip Build/Binaries/*
 
-            - name: Upload artifacts
-              if: github.event.inputs.upload_artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                name: artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}
-                path: artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}.zip
+      - name: Archive artifacts
+        if: github.event.inputs.upload_artifacts && github.event.inputs.platform == 'windows'
+        run: Compress-Archive -Path Build/Binaries/* -DestinationPath artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}.zip
+
+      - name: Upload artifacts
+        if: github.event.inputs.upload_artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}
+          path: artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}.zip
