@@ -7,45 +7,23 @@ on:
   pull_request:
     branches:
       - master
-
-env:
-  PLATFORM: linux
-  TARGETS: JustEngineExe
+  workflow_dispatch:
 
 jobs:
-  build-debug:
+  JustEngine-Debug:
     uses: ./.github/workflows/build-custom.yml
     with:
-      branch: ${{github.ref-name}}
+      branch: ${{github.ref_name}}
       platform: "linux"
       target: "JustEngineExe"
       configuration: "Debug"
       upload_artifacts: true
 
-  build-release:
+  JustEngine-Release:
     uses: ./.github/workflows/build-custom.yml
     with:
-      branch: ${{github.ref-name}}
+      branch: ${{github.ref_name}}
       platform: "linux"
       target: "JustEngineExe"
       configuration: "Release"
       upload_artifacts: true
-
-    # steps:
-    #   - name: Checkout branch ${{github.ref_name}}
-    #     uses: actions/checkout@v5
-
-    #   - name: Configure CMake
-    #     run: cmake -B ${{github.workspace}}/Build -DCMAKE_BUILD_TYPE=${{matrix.configuration}}
-
-    #   - name: Build
-    #     run: cmake --build ${{github.workspace}}/Build --config ${{matrix.configuration}} -v --target ${{env.TARGETS}}
-
-    #   - name: Archive artifacts
-    #     run: zip -r artifacts-${{env.PLATFORM}}-${{matrix.configuration}}.zip Build/Binaries/*
-
-    #   - name: Upload artifacts
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: artifacts-${{env.PLATFORM}}-${{matrix.configuration}}
-    #       path: artifacts-${{env.PLATFORM}}-${{matrix.configuration}}.zip
