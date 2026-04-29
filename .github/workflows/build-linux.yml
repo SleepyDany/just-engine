@@ -1,0 +1,29 @@
+name: Linux build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  JustEngine-Debug:
+    uses: ./.github/workflows/build-custom.yml
+    with:
+      branch: ${{github.ref_name}}
+      platform: "linux"
+      target: "JustEngineExe"
+      build_type: "Debug"
+      upload_artifacts: true
+
+  JustEngine-Release:
+    uses: ./.github/workflows/build-custom.yml
+    with:
+      branch: ${{github.ref_name}}
+      platform: "linux"
+      target: "JustEngineExe"
+      build_type: "Release"
+      upload_artifacts: true

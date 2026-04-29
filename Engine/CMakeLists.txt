@@ -95,7 +95,7 @@ je_create_ide_folders(JE_ENGINE_SOURCES)
 je_create_ide_folders(Source/Core/CoreMain.cpp)
 
 # je_setup_pch(${PROJECT_NAME}Exe Source/Core/CorePch.cpp Source/Core/CorePch.cpp Source/Core/CoreMain.cpp)
-je_setup_pch(${PROJECT_NAME} Source/Core/CorePch.cpp Source/Core/CorePch.cpp JE_ENGINE_SOURCES)
+je_setup_pch(${PROJECT_NAME} Source/Core/CorePch.cpp Source/Core/CorePch.h JE_ENGINE_SOURCES)
 
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PUBLIC /MP /Zc:preprocessor)

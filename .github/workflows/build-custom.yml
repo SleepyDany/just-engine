@@ -1,0 +1,107 @@
+name: Custom build
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Git branch to build"
+        required: true
+        default: "master"
+        type: string
+      platform:
+        description: "Build platform"
+        required: true
+        default: "windows"
+        type: choice
+        options:
+          - windows
+          - linux
+      target:
+        description: "Build target"
+        required: true
+        default: "JustEngineExe"
+        type: choice
+        options:
+          - JustEngineExe
+      build_type:
+        description: "Build type"
+        required: true
+        default: "Debug"
+        type: choice
+        options:
+          - Debug
+          - Release
+      upload_artifacts:
+        description: "Upload build artifacts?"
+        required: true
+        default: false
+        type: boolean
+
+  workflow_call:
+    inputs:
+      branch:
+        description: "Git branch to build"
+        required: true
+        default: "master"
+        type: string
+      platform:
+        description: "Build platform"
+        required: true
+        default: "windows"
+        type: string
+      target:
+        description: "Build target"
+        required: true
+        default: "JustEngineExe"
+        type: string
+      build_type:
+        description: "Build type"
+        required: true
+        default: "Debug"
+        type: string
+      upload_artifacts:
+        description: "Upload build artifacts?"
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ${{inputs.platform == 'windows' && 'windows-latest' || inputs.platform == 'linux' && 'ubuntu-latest'}}
+    timeout-minutes: 120
+    env:
+      CXX: ${{inputs.platform == 'linux' && 'clang++' || 'cl.exe'}}
+    steps:
+      - name: Custom build configuration
+        run: |
+          echo "Git branch: ${{ inputs.branch }}"
+          echo "Platform: ${{ inputs.platform }}"
+          echo "Target: ${{ inputs.target }}"
+          echo "Build type: ${{ inputs.build_type }}"
+          echo "Upload artifacts: ${{ inputs.upload_artifacts }}"
+
+      - name: Checkout ${{inputs.branch}}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{inputs.branch}}
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/Build -DCMAKE_BUILD_TYPE=${{inputs.build_type}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/Build --config ${{inputs.build_type}} -v --target ${{inputs.target}}
+
+      - name: Archive artifacts
+        if: inputs.upload_artifacts && inputs.platform == 'linux'
+        run: zip -r artifacts-${{inputs.platform}}-${{inputs.build_type}}.zip Build/Binaries/*
+
+      - name: Archive artifacts
+        if: inputs.upload_artifacts && inputs.platform == 'windows'
+        run: Compress-Archive -Path Build/Binaries/* -DestinationPath artifacts-${{inputs.platform}}-${{inputs.build_type}}.zip
+
+      - name: Upload artifacts
+        if: inputs.upload_artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{inputs.platform}}-${{inputs.build_type}}
+          path: artifacts-${{inputs.platform}}-${{inputs.build_type}}.zip
