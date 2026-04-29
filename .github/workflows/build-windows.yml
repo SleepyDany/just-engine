@@ -16,7 +16,7 @@ jobs:
       branch: ${{github.ref_name}}
       platform: "windows"
       target: "JustEngineExe"
-      configuration: "Debug"
+      build_type: "Debug"
       upload_artifacts: true
 
   JustEngine-Release:
@@ -25,5 +25,5 @@ jobs:
       branch: ${{github.ref_name}}
       platform: "windows"
       target: "JustEngineExe"
-      configuration: "Release"
+      build_type: "Release"
       upload_artifacts: true

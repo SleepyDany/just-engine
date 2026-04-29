@@ -23,8 +23,8 @@ on:
         type: choice
         options:
           - JustEngineExe
-      configuration:
-        description: "Build configuration"
+      build_type:
+        description: "Build type"
         required: true
         default: "Debug"
         type: choice
@@ -54,8 +54,8 @@ on:
         required: true
         default: "JustEngineExe"
         type: string
-      configuration:
-        description: "Build configuration"
+      build_type:
+        description: "Build type"
         required: true
         default: "Debug"
         type: string
@@ -67,42 +67,41 @@ on:
 
 jobs:
   build:
-    runs-on: ${{github.event.inputs.platform == 'windows' && 'windows-latest' ||
-      github.event.inputs.platform == 'linux' && 'ubuntu-latest'}}
+    runs-on: ${{inputs.platform == 'windows' && 'windows-latest' || inputs.platform == 'linux' && 'ubuntu-latest'}}
     timeout-minutes: 120
     env:
-      CXX: ${{github.event.inputs.platform == 'linux' && 'clang++' || 'cl.exe'}}
+      CXX: ${{inputs.platform == 'linux' && 'clang++' || 'cl.exe'}}
     steps:
       - name: Custom build configuration
         run: |
           echo "Git branch: ${{ inputs.branch }}"
           echo "Platform: ${{ inputs.platform }}"
           echo "Target: ${{ inputs.target }}"
-          echo "Build type: ${{ inputs.configuration }}"
+          echo "Build type: ${{ inputs.build_type }}"
           echo "Upload artifacts: ${{ inputs.upload_artifacts }}"
 
-      - name: Checkout ${{github.event.inputs.branch}}
+      - name: Checkout ${{inputs.branch}}
         uses: actions/checkout@v5
         with:
-          ref: ${{github.event.inputs.branch}}
+          ref: ${{inputs.branch}}
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/Build -DCMAKE_BUILD_TYPE=${{github.event.inputs.configuration}}
+        run: cmake -B ${{github.workspace}}/Build -DCMAKE_BUILD_TYPE=${{inputs.build_type}}
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/Build --config ${{github.event.inputs.configuration}} -v --target ${{github.event.inputs.target}}
+        run: cmake --build ${{github.workspace}}/Build --config ${{inputs.build_type}} -v --target ${{inputs.target}}
 
       - name: Archive artifacts
-        if: github.event.inputs.upload_artifacts == 'true' && github.event.inputs.platform == 'linux'
-        run: zip -r artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}.zip Build/Binaries/*
+        if: inputs.upload_artifacts && inputs.platform == 'linux'
+        run: zip -r artifacts-${{inputs.platform}}-${{inputs.build_type}}.zip Build/Binaries/*
 
       - name: Archive artifacts
-        if: github.event.inputs.upload_artifacts == 'true' && github.event.inputs.platform == 'windows'
-        run: Compress-Archive -Path Build/Binaries/* -DestinationPath artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}.zip
+        if: inputs.upload_artifacts && inputs.platform == 'windows'
+        run: Compress-Archive -Path Build/Binaries/* -DestinationPath artifacts-${{inputs.platform}}-${{inputs.build_type}}.zip
 
       - name: Upload artifacts
-        if: github.event.inputs.upload_artifacts == 'true'
+        if: inputs.upload_artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}
-          path: artifacts-${{github.event.inputs.platform}}-${{github.event.inputs.configuration}}.zip
+          name: artifacts-${{inputs.platform}}-${{inputs.build_type}}
+          path: artifacts-${{inputs.platform}}-${{inputs.build_type}}.zip
