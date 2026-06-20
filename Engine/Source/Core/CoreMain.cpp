@@ -1,8 +1,7 @@
-#include "Log/Log.h"
+#include "Engine.h"
+#include "EntryPoint.h"
 
-int main()
+JE::FApplication* JE::CreateApplication(int32 _argCount, char** _argString)
 {
-	JE_LOG(LogCore, Log, "Hello, World!\tIt's JustEngine.");
-
-	return 0;
+	return new JE::FEngine(_argCount, _argString);
 }
