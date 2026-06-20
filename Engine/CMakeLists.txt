@@ -38,35 +38,28 @@ else()
     add_library(${PROJECT_NAME} STATIC)
 endif()
 
-set(JE_ENGINE_SOURCES
-    # TODO: add to separate ide folder (e.x. Tools/)
-    # ../.clang-format
-    # ../.gitignore
-    # ../README.md
-    # CMakeLists.txt
-    Source/Core/CoreDefines.h
-    Source/Core/CorePch.h
-    Source/Core/CorePch.cpp
-    Source/Core/Types/BaseTypes.h
-    Source/Core/Types/NonCopyable.h
-    Source/Core/Log/Log.h
-    Source/Core/Log/LogMisc.cpp
-    Source/Core/Log/LogMisc.h
-    Source/Core/Log/Logger.cpp
-    Source/Core/Log/Logger.h
-    Source/Core/Log/LoggerImpl.cpp
-    Source/Core/Log/LoggerImpl.h
-    Source/Core/Log/Impls/ConsoleLoggerImpl.h
-    Source/Core/Log/Impls/ConsoleLoggerImpl.cpp
-    Source/Core/Log/Impls/FileLoggerImpl.h
-    Source/Core/Log/Impls/FileLoggerImpl.cpp
-    Source/Core/Log/LogManager.cpp
-    Source/Core/Log/LogManager.h
-    Source/Core/Log/LogMacros.h
-    Source/Core/Utilities/StringUtilities.h
-    Source/Core/Utilities/StringUtilities.cpp
+# TODO: add to separate ide folder (e.x. Tools/)
+# ../.clang-format
+# ../.gitignore
+# ../README.md
+set(JE_ENGINE_FILES_PATTERNS
+    *.cpp
+    *.h
+    *.inl
 )
 
+set(JE_ENGINE_EXCLUDE_PATTERNS
+    .*/CoreMain\\.cpp$
+)
+
+set(JE_ENGINE_SOURCES)
+je_collect_files(${JE_ENGINE_SOURCE_DIR}
+    JE_ENGINE_FILES_PATTERNS
+    JE_ENGINE_EXCLUDE_PATTERNS
+    JE_ENGINE_SOURCES
+)
+
+# TODO: how to optimize it?
 set(JE_ENGINE_INCLUDES
     Source/
     Source/Core

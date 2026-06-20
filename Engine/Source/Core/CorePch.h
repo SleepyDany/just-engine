@@ -18,6 +18,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -25,3 +26,5 @@
 
 // JE includes
 #include "CoreDefines.h"
+#include "Log/Log.h"
+#include "Types/BaseTypes.h"

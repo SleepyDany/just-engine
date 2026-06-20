@@ -5,5 +5,5 @@
 #include "Log/LogMisc.h"
 #include "Log/Logger.h"
 
-// Common log categories
+/** Common Engine's log categories */
 JE_DEFINE_LOG_CATEGORY(LogCore, Log);

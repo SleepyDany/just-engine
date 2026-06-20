@@ -7,9 +7,7 @@
 #include <filesystem>
 #include <format>
 
-using namespace JE;
-
-FLogManager::FLogManager()
+JE::FLogManager::FLogManager()
 {
 	FConsoleLoggerImpl* consoleLoggerImpl = new FConsoleLoggerImpl("DefaultConsoleLogger");
 	std::shared_ptr<FLoggerImpl> newLoggerImpl = RegisterLoggerImpl(consoleLoggerImpl);
@@ -35,7 +33,7 @@ FLogManager::FLogManager()
 	};
 }
 
-FLogManager::~FLogManager()
+JE::FLogManager::~FLogManager()
 {
 	Loggers.clear();
 	DefaultLoggerImpls.clear();
@@ -48,13 +46,13 @@ FLogManager::~FLogManager()
 	LoggerImpls.clear();
 }
 
-FLogManager& FLogManager::Get()
+JE::FLogManager& JE::FLogManager::Get()
 {
-	static FLogManager logManager;
+	static JE::FLogManager logManager;
 	return logManager;
 }
 
-FLogger& FLogManager::GetLogger(const FLogCategory& _logCategory)
+JE::FLogger& JE::FLogManager::GetLogger(const FLogCategory& _logCategory)
 {
 	const auto loggerIter = Loggers.find(_logCategory.GetId());
 	if (loggerIter != Loggers.end())
@@ -69,13 +67,13 @@ FLogger& FLogManager::GetLogger(const FLogCategory& _logCategory)
 	return Loggers.at(_logCategory.GetId());
 }
 
-std::shared_ptr<FLoggerImpl> FLogManager::GetLoggerImpl(const FLoggerImpl::ID& _implId) const
+std::shared_ptr<JE::FLoggerImpl> JE::FLogManager::GetLoggerImpl(const FLoggerImpl::ID& _implId) const
 {
 	const auto loggerImplIter = LoggerImpls.find(_implId);
 	return loggerImplIter != LoggerImpls.end() ? loggerImplIter->second : nullptr;
 }
 
-std::shared_ptr<FLoggerImpl> FLogManager::RegisterLoggerImpl(FLoggerImpl* _loggerImpl)
+std::shared_ptr<JE::FLoggerImpl> JE::FLogManager::RegisterLoggerImpl(FLoggerImpl* _loggerImpl)
 {
 	if (!_loggerImpl)
 	{

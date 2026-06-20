@@ -2,9 +2,7 @@
 
 #include "Log/LogMacros.h"
 
-using namespace JE;
-
-FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const std::filesystem::path& _filePath)
+JE::FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const std::filesystem::path& _filePath)
 	: FLoggerImpl(_id)
 	, FilePath(_filePath)
 {
@@ -16,18 +14,18 @@ FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const std::filesystem::path& _fi
 	Open();
 }
 
-FFileLoggerImpl::~FFileLoggerImpl()
+JE::FFileLoggerImpl::~FFileLoggerImpl()
 {
 	Close();
 	FLoggerImpl::~FLoggerImpl();
 }
 
-const std::filesystem::path& FFileLoggerImpl::GetFilePath() const
+const std::filesystem::path& JE::FFileLoggerImpl::GetFilePath() const
 {
 	return FilePath;
 }
 
-void FFileLoggerImpl::SetFilePath(const std::filesystem::path& _newFilePath)
+void JE::FFileLoggerImpl::SetFilePath(const std::filesystem::path& _newFilePath)
 {
 	Close();
 
@@ -38,12 +36,12 @@ void FFileLoggerImpl::SetFilePath(const std::filesystem::path& _newFilePath)
 	Open();
 }
 
-uint64 FFileLoggerImpl::GetMaxSize() const
+uint64 JE::FFileLoggerImpl::GetMaxSize() const
 {
 	return MaxSize;
 }
 
-void FFileLoggerImpl::SetMaxSize(uint64 _newMaxSize)
+void JE::FFileLoggerImpl::SetMaxSize(uint64 _newMaxSize)
 {
 	MaxSize = _newMaxSize;
 	if (GetCurrentSize() >= MaxSize)
@@ -53,12 +51,12 @@ void FFileLoggerImpl::SetMaxSize(uint64 _newMaxSize)
 	}
 }
 
-uint64 FFileLoggerImpl::GetCurrentSize() const
+uint64 JE::FFileLoggerImpl::GetCurrentSize() const
 {
 	return std::filesystem::file_size(FilePath);
 }
 
-void FFileLoggerImpl::Log(const std::string& _message)
+void JE::FFileLoggerImpl::Log(const std::string& _message)
 {
 	if (File.is_open())
 	{
@@ -74,7 +72,7 @@ void FFileLoggerImpl::Log(const std::string& _message)
 	}
 }
 
-void FFileLoggerImpl::Open()
+void JE::FFileLoggerImpl::Open()
 {
 	std::filesystem::create_directory(FilePath.parent_path());
 
@@ -117,7 +115,7 @@ void FFileLoggerImpl::Open()
 	File.open(FilePath, std::ios::out | std::ios::trunc);
 }
 
-void FFileLoggerImpl::Close()
+void JE::FFileLoggerImpl::Close()
 {
 	File.close();
 }

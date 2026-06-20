@@ -1,6 +1,6 @@
 macro(je_system_info)
     message("")
-    message("#---------System info----------")
+    message("#---------System info----------#")
 
     if (WIN32)
         message("OS: Windows")
@@ -19,8 +19,22 @@ macro(je_system_info)
     message("Compiler C++ release flags: ${CMAKE_CXX_FLAGS_RELEASE}")
     message("Configuration types: ${CMAKE_CONFIGURATION_TYPES}")
     
-    message("#------------------------------")
+    message("#------------------------------#")
     message("")
+endmacro()
+
+macro(je_collect_files DIR_PATH INCLUDE_PATTERNS EXCLUDE_PATTERNS OUT_FILES)
+    foreach(PATTERN IN LISTS ${INCLUDE_PATTERNS})
+        list(APPEND WORK_PATTERNS "${DIR_PATH}/${PATTERN}")
+    endforeach()
+
+    file(GLOB_RECURSE ${OUT_FILES} CONFIGURE_DEPENDS
+        ${WORK_PATTERNS}
+    )
+
+    foreach(PATTERN IN LISTS ${EXCLUDE_PATTERNS})
+        list(FILTER ${OUT_FILES} EXCLUDE REGEX "${PATTERN}")
+    endforeach()
 endmacro()
 
 macro(je_create_ide_folders SOURCE_FILES)

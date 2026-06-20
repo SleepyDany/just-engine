@@ -4,6 +4,9 @@
 #include <Core/Log/LogMisc.h>
 #include <Core/Log/Logger.h>
 
+#include <chrono>
+#include <format>
+
 #define JE_DEFINE_LOG_CATEGORY(CategoryName, Verbosity)                                   \
 	namespace                                                                             \
 	{                                                                                     \

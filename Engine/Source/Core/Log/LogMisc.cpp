@@ -1,7 +1,5 @@
 #include "LogMisc.h"
 
-using namespace JE;
-
 std::string JE::ToString(ELogVerbosity Verbosity)
 {
 	switch (Verbosity)
@@ -25,34 +23,34 @@ std::string JE::ToString(ELogVerbosity Verbosity)
 	return "";
 }
 
-FLogCategory::FLogCategory(const ID& _id, ELogVerbosity _defaultVerbosity)
+JE::FLogCategory::FLogCategory(const ID& _id, ELogVerbosity _defaultVerbosity)
 	: Id(_id)
 	, DefaultVerbosity(_defaultVerbosity)
 	, Verbosity(_defaultVerbosity)
 {
 }
 
-const FLogCategory::ID& FLogCategory::GetId() const
+const JE::FLogCategory::ID& JE::FLogCategory::GetId() const
 {
 	return Id;
 }
 
-ELogVerbosity FLogCategory::GetDefaultVerbosity() const
+JE::ELogVerbosity JE::FLogCategory::GetDefaultVerbosity() const
 {
 	return DefaultVerbosity;
 }
 
-void FLogCategory::ResetVerbosity()
+void JE::FLogCategory::ResetVerbosity()
 {
 	SetVerbosity(DefaultVerbosity);
 }
 
-ELogVerbosity FLogCategory::GetVerbosity() const
+JE::ELogVerbosity JE::FLogCategory::GetVerbosity() const
 {
 	return Verbosity;
 }
 
-void FLogCategory::SetVerbosity(ELogVerbosity _newVerbosity)
+void JE::FLogCategory::SetVerbosity(ELogVerbosity _newVerbosity)
 {
 	// TODO: validate verbosity
 	if (Verbosity != _newVerbosity)
@@ -61,17 +59,17 @@ void FLogCategory::SetVerbosity(ELogVerbosity _newVerbosity)
 	}
 }
 
-bool FLogCategory::IsValid() const
+bool JE::FLogCategory::IsValid() const
 {
 	return !Id.empty();
 }
 
-bool FLogCategory::operator==(const FLogCategory& _logCategory) const
+bool JE::FLogCategory::operator==(const FLogCategory& _logCategory) const
 {
 	return Id == _logCategory.Id;
 }
 
-bool FLogCategory::operator!=(const FLogCategory& _logCategory) const
+bool JE::FLogCategory::operator!=(const FLogCategory& _logCategory) const
 {
 	return Id != _logCategory.Id;
 }

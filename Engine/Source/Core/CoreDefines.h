@@ -47,7 +47,7 @@
 	#define JE_API
 #endif
 
-// Deprecated
+// Deprecation definitions
 #if defined(JE_COMPILER_MSVC)
 	#define JE_DEPRECATED(Message) __declspec(deprecated(Message))
 #elif defined(JE_COMPILER_GCC) || defined(JE_COMPILER_CLANG)
