@@ -2,14 +2,15 @@
 
 #include "Log/LogMacros.h"
 
-JE::FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const std::filesystem::path& _filePath)
-	: FLoggerImpl(_id)
+JE::FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const TLogFormatter& _formatter, const std::filesystem::path& _filePath)
+	: Super(_id, _formatter)
 	, FilePath(_filePath)
 {
 	assert(!_filePath.empty());
 	assert(_filePath.has_filename());
 
 	FilePath = _filePath;
+	PrevFlushTimepoint = std::chrono::steady_clock::now();
 
 	Open();
 }
@@ -17,7 +18,7 @@ JE::FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const std::filesystem::path&
 JE::FFileLoggerImpl::~FFileLoggerImpl()
 {
 	Close();
-	FLoggerImpl::~FLoggerImpl();
+	Super::~FLoggerImpl();
 }
 
 const std::filesystem::path& JE::FFileLoggerImpl::GetFilePath() const
@@ -56,7 +57,7 @@ uint64 JE::FFileLoggerImpl::GetCurrentSize() const
 	return std::filesystem::file_size(FilePath);
 }
 
-void JE::FFileLoggerImpl::Log(const std::string& _message)
+void JE::FFileLoggerImpl::Log(const std::string& _message, bool _bForceFlush)
 {
 	if (File.is_open())
 	{
@@ -66,9 +67,14 @@ void JE::FFileLoggerImpl::Log(const std::string& _message)
 			Open();
 		}
 
+		// TODO: add messages/time/size limits for flush as well?
 		File << _message;
-		// TODO: optimize
-		File.flush();
+		auto now = std::chrono::steady_clock::now();
+		if (_bForceFlush || (now - PrevFlushTimepoint) >= FlushPeriod)
+		{
+			File.flush();
+			PrevFlushTimepoint = now;
+		}
 	}
 }
 

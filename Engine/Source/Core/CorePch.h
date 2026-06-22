@@ -26,5 +26,4 @@
 
 // JE includes
 #include "CoreDefines.h"
-#include "Log/Log.h"
 #include "Types/BaseTypes.h"

@@ -56,12 +56,13 @@ void JE::FLogger::Log(const FLogRecord& _logRecord)
 			continue;
 		}
 
-		const TLogFormatter& formatter = impl->GetFormatter() ? impl->GetFormatter() : Formatter;
-		impl->Log(formatter(_logRecord));
+		impl->Log(_logRecord);
 	}
 
 	if (verbosity == ELogVerbosity::Fatal)
 	{
+		// TODO: should we use std::abort()?
+		// TODO: __debugbreak() can act as abort if no debugger is attached, how to handle?
 		JE_PLATFORM_BREAK();
 	}
 }

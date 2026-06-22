@@ -24,7 +24,7 @@ namespace JE
 
 		//- Lifecycle --------------------
 	public:
-		FLoggerImpl(const ID& _id, TLogFormatter&& _logFormatter = nullptr);
+		FLoggerImpl(const ID& _id, const TLogFormatter& _logFormatter = nullptr);
 		virtual ~FLoggerImpl() = default;
 
 		//- Methods ----------------------
@@ -36,7 +36,7 @@ namespace JE
 
 		// TODO: probably remove it
 		virtual void Log(const FLogRecord& _logRecord);
-		virtual void Log(const std::string& _message) = 0;
+		virtual void Log(const std::string& _message, bool _bForceFlush = false) = 0;
 	};
 
 } // namespace JE

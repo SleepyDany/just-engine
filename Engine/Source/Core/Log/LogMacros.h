@@ -39,8 +39,11 @@
 
 #define JE_LOG(Category, Verbosity, Format, ...) JE_PRIVATE_LOG_IMPL(Category, Verbosity, Format, __VA_ARGS__)
 
-#define JE_CLOG(Condition, Category, Verbosity, Format, ...)           \
-	if (!!(Condition))                                                 \
-	{                                                                  \
-		JE_PRIVATE_LOG_IMPL(Category, Verbosity, Format, __VA_ARGS__); \
-	}
+#define JE_CLOG(Condition, Category, Verbosity, Format, ...)               \
+	do                                                                     \
+	{                                                                      \
+		if (Condition)                                                     \
+		{                                                                  \
+			JE_PRIVATE_LOG_IMPL(Category, Verbosity, Format, __VA_ARGS__); \
+		}                                                                  \
+	} while (false)

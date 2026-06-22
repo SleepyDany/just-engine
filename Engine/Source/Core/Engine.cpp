@@ -1,5 +1,7 @@
 #include "Engine.h"
 
+#include "Log/Log.h"
+
 JE::FEngine::FEngine(int32 _argCount, char** _argString)
 {
 	LaunchParameters.reserve(_argCount);

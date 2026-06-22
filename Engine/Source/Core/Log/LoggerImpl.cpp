@@ -1,7 +1,7 @@
 #include "Log/LoggerImpl.h"
 
-JE::FLoggerImpl::FLoggerImpl(const ID& _id, TLogFormatter&& _logFormatter)
-	: Formatter(std::move(_logFormatter))
+JE::FLoggerImpl::FLoggerImpl(const ID& _id, const TLogFormatter& _logFormatter)
+	: Formatter(_logFormatter)
 	, Id(_id)
 {
 }
@@ -23,5 +23,6 @@ void JE::FLoggerImpl::SetFormatter(const TLogFormatter& _formatter)
 
 void JE::FLoggerImpl::Log(const FLogRecord& _logRecord)
 {
-	Log(Formatter ? Formatter(_logRecord) : _logRecord.Message);
+	const bool bForceFlush = _logRecord.Verbosity == ELogVerbosity::Error || _logRecord.Verbosity == ELogVerbosity::Fatal;
+	Log(Formatter ? Formatter(_logRecord) : _logRecord.Message, bForceFlush);
 }
