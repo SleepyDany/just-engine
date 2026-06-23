@@ -1,13 +1,14 @@
 #include "FileLoggerImpl.h"
 
+#include "Assertions/Assert.h"
 #include "Log/LogMacros.h"
 
 JE::FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const TLogFormatter& _formatter, const std::filesystem::path& _filePath)
 	: Super(_id, _formatter)
 	, FilePath(_filePath)
 {
-	assert(!_filePath.empty());
-	assert(_filePath.has_filename());
+	JE_PRIVATE_ASSERT(!_filePath.empty(), "FFileLoggerImpl needs filled path.");
+	JE_PRIVATE_ASSERT(_filePath.has_filename(), "FFileLoggerImpl doesn't need a filename in path.");
 
 	FilePath = _filePath;
 	PrevFlushTimepoint = std::chrono::steady_clock::now();
@@ -30,8 +31,8 @@ void JE::FFileLoggerImpl::SetFilePath(const std::filesystem::path& _newFilePath)
 {
 	Close();
 
-	assert(!_newFilePath.empty());
-	assert(_newFilePath.has_filename());
+	JE_PRIVATE_ASSERT(!_newFilePath.empty(), "FFileLoggerImpl needs filled path.");
+	JE_PRIVATE_ASSERT(_newFilePath.has_filename(), "FFileLoggerImpl doesn't need a filename in path.");
 	FilePath = _newFilePath;
 
 	Open();

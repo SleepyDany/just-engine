@@ -16,6 +16,7 @@
 #include <ranges>
 #include <set>
 #include <sstream>
+#include <stacktrace>
 #include <string>
 #include <string_view>
 #include <thread>
