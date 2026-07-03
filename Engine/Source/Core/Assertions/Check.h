@@ -6,38 +6,40 @@
 #ifdef JE_USE_CHECKS
 
 	#include "CheckManager.h"
+
+	#include "Assertions/Assert.h"
 	#include "CorePch.h"
 	#include "Log/Log.h"
 
 JE_DEFINE_LOG_CATEGORY(LogCheck, Error);
 
 	/** INTERNAL checks implementation. Use JE_CHECK_* instead. */
-	#define JE_PRIVATE_CHECK_CF_IMPL(Expr, Category, Message, ...)                                                    \
-		(!!(Expr) ||                                                                                                  \
-			[&]()                                                                                                     \
-			{                                                                                                         \
-				JE::FCheckManager& checkManager = JE::FCheckManager::Get();                                           \
-				std::string_view messageView(Message);                                                                \
-				if (checkManager.ShouldPrintToLog() && !messageView.empty())                                          \
-				{                                                                                                     \
-					/** TODO: How to remove <lambda>::operator() from function name? */                               \
-					JE_LOG(Category, Error, Message, __VA_ARGS__);                                                    \
-				}                                                                                                     \
-                                                                                                                      \
-				if (checkManager.ShouldPrintToScreen())                                                               \
-				{                                                                                                     \
-					/** TODO: Implement FCheckManager::PrintToScreen() */                                             \
-					JE_ASSERT(false, "FCheckManager::PrintToScreen is not implemented.");                             \
-				}                                                                                                     \
-				/** TODO: How to remove <lambda>::operator() from function name? */                                   \
-				JE_LOG(LogCheck, Error, "Check '{}' failed. Stacktrace:\n{}\n", #Expr, checkManager.GetStacktrace()); \
-                                                                                                                      \
-				if (checkManager.ShouldBreak())                                                                       \
-				{                                                                                                     \
-					JE_PLATFORM_BREAK();                                                                              \
-				}                                                                                                     \
-                                                                                                                      \
-				return false;                                                                                         \
+	#define JE_PRIVATE_CHECK_CF_IMPL(Expr, Category, Message, ...)                                                     \
+		(!!(Expr) ||                                                                                                   \
+			[&]()                                                                                                      \
+			{                                                                                                          \
+				JE::FCheckManager& checkManager = JE::FCheckManager::Get();                                            \
+				std::string_view messageView(Message);                                                                 \
+				if (checkManager.ShouldPrintToLog() && !messageView.empty())                                           \
+				{                                                                                                      \
+					/** TODO: How to remove <lambda>::operator() from function name? */                                \
+					JE_LOG(Category, Error, Message, __VA_ARGS__);                                                     \
+				}                                                                                                      \
+                                                                                                                       \
+				if (checkManager.ShouldPrintToScreen())                                                                \
+				{                                                                                                      \
+					/** TODO: Implement FCheckManager::PrintToScreen() */                                              \
+					JE_ASSERT_F(false, "FCheckManager::PrintToScreen is not implemented.");                            \
+				}                                                                                                      \
+				/** TODO: How to remove <lambda>::operator() from function name? */                                    \
+				JE_LOG(LogCheck, Error, "Check '{}' failed. Stacktrace:\n{}\n", #Expr, checkManager.GetStacktrace(3)); \
+                                                                                                                       \
+				if (checkManager.ShouldBreak())                                                                        \
+				{                                                                                                      \
+					JE_PLATFORM_BREAK();                                                                               \
+				}                                                                                                      \
+                                                                                                                       \
+				return false;                                                                                          \
 			}())
 
 // Simple checks

@@ -17,10 +17,10 @@ namespace JE
 		bool bShouldPrintToScreen = false;
 
 		/** Enable/disable breakpoint on check. */
-		bool bShouldBreak = false;
+		bool bShouldBreak = true;
 
 		/** Depth of the captured callstack. */
-		uint32 StacktraceDepth = 10;
+		uint32 StacktraceDepth = 50;
 
 		//- Lifecycle --------------------
 	public:
@@ -33,7 +33,7 @@ namespace JE
 		static FCheckManager& Get();
 
 		/** Get callstack before check was triggered. */
-		std::string GetStacktrace() const;
+		std::string GetStacktrace(uint32 _skipFirstEntryCount = 0) const;
 
 		/** Does printing to log enabled? */
 		bool ShouldPrintToLog() const;

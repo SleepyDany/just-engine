@@ -81,13 +81,16 @@ if (JE_CXX_MSVC)
     target_compile_options(${PROJECT_NAME} PUBLIC /MP /Zc:preprocessor)
     target_compile_options(${PROJECT_NAME}Exe PUBLIC /MP /Zc:preprocessor)
 elseif (JE_CXX_CLANG)
-    target_compile_options(${PROJECT_NAME} PUBLIC -std=c++23 -stdlib=libstdc++ -fno-omit-frame-pointer)
-    target_compile_options(${PROJECT_NAME}Exe PUBLIC -std=c++23 -stdlib=libstdc++ -fno-omit-frame-pointer)
+    # -rdynamic: for linux-specific stacktrace
+    target_compile_options(${PROJECT_NAME} PUBLIC -g -std=c++23 -stdlib=libstdc++ -fno-omit-frame-pointer -rdynamic)
+    target_compile_options(${PROJECT_NAME}Exe PUBLIC -g -std=c++23 -stdlib=libstdc++ -fno-omit-frame-pointer -rdynamic)
 endif()
 
 # for <stacktrace> in Clang
-if (JE_CXX_CLANG)
-    target_link_options(${PROJECT_NAME} PUBLIC -lstdc++exp -lstdc++_libbacktrace)
+if (WIN32)
+    target_link_libraries(${PROJECT_NAME} PUBLIC dbghelp)
+elseif (LINUX)
+    target_link_libraries(${PROJECT_NAME} PUBLIC dl pthread)
 endif()
 target_link_libraries(${PROJECT_NAME}Exe PRIVATE ${PROJECT_NAME})
 
