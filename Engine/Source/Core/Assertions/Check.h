@@ -11,7 +11,7 @@
 
 JE_DEFINE_LOG_CATEGORY(LogCheck, Error);
 
-/** INTERNAL checks implementation. Use JE_CHECK_* instead. */
+	/** INTERNAL checks implementation. Use JE_CHECK_* instead. */
 	#define JE_PRIVATE_CHECK_CF_IMPL(Expr, Category, Message, ...)                                                    \
 		(!!(Expr) ||                                                                                                  \
 			[&]()                                                                                                     \
@@ -42,70 +42,70 @@ JE_DEFINE_LOG_CATEGORY(LogCheck, Error);
 
 // Simple checks
 
-/** Check with log category and formatted message. */
+	/** Check with log category and formatted message. */
 	#define JE_CHECK_CF(Expr, Category, Message, ...) JE_PRIVATE_CHECK_CF_IMPL(Expr, Category, Message, __VA_ARGS__)
 
-/** Check with log category. */
+	/** Check with log category. */
 	#define JE_CHECK_C(Expr, Category) JE_CHECK_CF(Expr, Category, "")
 
-/** Check with formatted message. */
+	/** Check with formatted message. */
 	#define JE_CHECK_F(Expr, Message, ...) JE_CHECK_CF(Expr, LogCheck, Message, __VA_ARGS__)
 
-/** Check. */
+	/** Check. */
 	#define JE_CHECK(Expr) JE_CHECK_CF(Expr, LogCheck, "")
 
 // Returning checks
 
-/** Returning check with log category and formatted message. */
+	/** Returning check with log category and formatted message. */
 	#define JE_CHECK_RETURN_CF(Expr, ReturnValue, Category, Message, ...)        \
 		if (!!(!JE_PRIVATE_CHECK_CF_IMPL(Expr, Category, Message, __VA_ARGS__))) \
 			return ReturnValue;                                                  \
 		else                                                                     \
 			volatile auto __stub = ((void*)0)
 
-/** Returning check with log category. */
+	/** Returning check with log category. */
 	#define JE_CHECK_RETURN_C(Expr, ReturnValue, Category) JE_CHECK_RETURN_CF(Expr, ReturnValue, Category, "")
 
-/** Returning check with formatted message. */
+	/** Returning check with formatted message. */
 	#define JE_CHECK_RETURN_F(Expr, ReturnValue, Message, ...) JE_CHECK_RETURN_CF(Expr, ReturnValue, LogCheck, Message, __VA_ARGS__)
 
-/** Returning check. */
+	/** Returning check. */
 	#define JE_CHECK_RETURN(Expr) JE_CHECK_RETURN_CF(Expr, , LogCheck, "")
 
 // Loop-continue checks
 
-/** Loop-continue check with log category and formatted message. */
+	/** Loop-continue check with log category and formatted message. */
 	#define JE_CHECK_CONTINUE_CF(Expr, Category, Message, ...)                   \
 		if (!!(!JE_PRIVATE_CHECK_CF_IMPL(Expr, Category, Message, __VA_ARGS__))) \
 			continue;                                                            \
 		else                                                                     \
 			volatile auto __stub = ((void*)0)
 
-/** Loop-continue check with log category. */
+	/** Loop-continue check with log category. */
 	#define JE_CHECK_CONTINUE_C(Expr, Category) JE_CHECK_CONTINUE_CF(Expr, Category, "")
 
-/** Loop-continue check with formatted message. */
+	/** Loop-continue check with formatted message. */
 	#define JE_CHECK_CONTINUE_F(Expr, Message, ...) JE_CHECK_CONTINUE_CF(Expr, LogCheck, Message, __VA_ARGS__)
 
-/** Loop-continue check. */
+	/** Loop-continue check. */
 	#define JE_CHECK_CONTINUE(Expr) JE_CHECK_CONTINUE_CF(Expr, LogCheck, "")
 
 // Loop-break checks
 
-/** Loop-break check with log category and formatted message. */
+	/** Loop-break check with log category and formatted message. */
 	#define JE_CHECK_BREAK_CF(Expr, Category, Message, ...)                      \
 		if (!!(!JE_PRIVATE_CHECK_CF_IMPL(Expr, Category, Message, __VA_ARGS__))) \
 			break;                                                               \
 		else                                                                     \
 			volatile auto __stub = ((void*)0)
 
-/** Loop-break check with log category. */
+	/** Loop-break check with log category. */
 	#define JE_CHECK_BREAK_C(Expr, Category) JE_CHECK_BREAK_CF(Expr, Category, "")
 
-/** Loop-break check with formatted message. */
+	/** Loop-break check with formatted message. */
 	#define JE_CHECK_BREAK_F(Expr, Message, ...) JE_CHECK_BREAK_CF(Expr, LogCheck, Message, __VA_ARGS__)
 
-/** Loop-break check. */
+	/** Loop-break check. */
 	#define JE_CHECK_BREAK(Expr) JE_CHECK_BREAK_CF(Expr, LogCheck, "")
 
 #else

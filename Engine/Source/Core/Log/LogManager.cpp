@@ -43,8 +43,8 @@ JE::FLogManager::~FLogManager()
 	for (auto& [implId, loggerImpl] : LoggerImpls)
 	{
 		// TODO: Is it possible to be used not only by Loggers?
-		JE_PRIVATE_ASSERT(
-			loggerImpl.use_count() == 1, std::format("Current logger implementation {} has multiple users.", loggerImpl->GetId()));
+		JE_PRIVATE_ASSERT_F(loggerImpl.use_count() == 1,
+			std::format("Current logger implementation {} has multiple users.", loggerImpl->GetId()));
 	}
 	LoggerImpls.clear();
 }
@@ -63,7 +63,7 @@ JE::FLogger& JE::FLogManager::GetLogger(const FLogCategory& _logCategory)
 		return loggerIter->second;
 	}
 
-	JE_PRIVATE_ASSERT(_logCategory.IsValid(), "Invalid log category.");
+	JE_PRIVATE_ASSERT_F(_logCategory.IsValid(), "Invalid log category.");
 
 	Loggers.try_emplace(_logCategory.GetId(), _logCategory, DefaultFormatter, DefaultLoggerImpls);
 

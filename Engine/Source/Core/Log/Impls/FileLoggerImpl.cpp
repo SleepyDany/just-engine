@@ -7,8 +7,8 @@ JE::FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const TLogFormatter& _format
 	: Super(_id, _formatter)
 	, FilePath(_filePath)
 {
-	JE_PRIVATE_ASSERT(!_filePath.empty(), "FFileLoggerImpl needs filled path.");
-	JE_PRIVATE_ASSERT(_filePath.has_filename(), "FFileLoggerImpl doesn't need a filename in path.");
+	JE_PRIVATE_ASSERT_F(!_filePath.empty(), "FFileLoggerImpl needs filled path.");
+	JE_PRIVATE_ASSERT_F(_filePath.has_filename(), "FFileLoggerImpl doesn't need a filename in path.");
 
 	FilePath = _filePath;
 	PrevFlushTimepoint = std::chrono::steady_clock::now();
@@ -31,8 +31,8 @@ void JE::FFileLoggerImpl::SetFilePath(const std::filesystem::path& _newFilePath)
 {
 	Close();
 
-	JE_PRIVATE_ASSERT(!_newFilePath.empty(), "FFileLoggerImpl needs filled path.");
-	JE_PRIVATE_ASSERT(_newFilePath.has_filename(), "FFileLoggerImpl doesn't need a filename in path.");
+	JE_PRIVATE_ASSERT_F(!_newFilePath.empty(), "FFileLoggerImpl needs filled path.");
+	JE_PRIVATE_ASSERT_F(_newFilePath.has_filename(), "FFileLoggerImpl doesn't need a filename in path.");
 	FilePath = _newFilePath;
 
 	Open();

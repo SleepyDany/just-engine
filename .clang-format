@@ -18,7 +18,9 @@ AlignAfterOpenBracket: DontAlign
 AlignEscapedNewlines: LeftWithLastLine
 AlignConsecutiveMacros: None
 AllowShortFunctionsOnASingleLine: None
-AllowAllArgumentsOnNextLine: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortLambdasOnASingleLine: None
 PointerAlignment: Left
 BinPackParameters: false
 BinPackArguments: false

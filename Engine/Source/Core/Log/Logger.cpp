@@ -3,8 +3,9 @@
 #include "Log/LogMisc.h"
 #include "Log/LoggerImpl.h"
 
-JE::FLogger::FLogger(
-	const FLogCategory& _category, const TLogFormatter& _formatter, const std::vector<std::shared_ptr<FLoggerImpl>>& _loggerImpls)
+JE::FLogger::FLogger(const FLogCategory& _category,
+	const TLogFormatter& _formatter,
+	const std::vector<std::shared_ptr<FLoggerImpl>>& _loggerImpls)
 	: Category(_category)
 	, Formatter(_formatter)
 	, LoggerImpls(_loggerImpls)

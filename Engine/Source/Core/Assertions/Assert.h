@@ -12,8 +12,8 @@
 
 JE_DEFINE_LOG_CATEGORY(LogAssert, Error);
 
-	/** Standard assertion with logging. */
-	#define JE_ASSERT(Expr, Message)                                                \
+	/** Standard assertion with formatted logging. */
+	#define JE_ASSERT_F(Expr, Message)                                              \
 		do                                                                          \
 		{                                                                           \
 			if (!(Expr))                                                            \
@@ -23,8 +23,11 @@ JE_DEFINE_LOG_CATEGORY(LogAssert, Error);
 			}                                                                       \
 		} while (false)
 
-	/** For INTERNAL usage only. Use JE_ASSERT() instead. */
-	#define JE_PRIVATE_ASSERT(Expr, Message)                                        \
+	/** Standard assertion with logging. */
+	#define JE_ASSERT(Expr) JE_ASSERT_F(Expr, "Abort.")
+
+	/** For INTERNAL usage only. Use JE_ASSERT_F() instead. */
+	#define JE_PRIVATE_ASSERT_F(Expr, Message)                                      \
 		do                                                                          \
 		{                                                                           \
 			if (!(Expr))                                                            \
@@ -35,6 +38,9 @@ JE_DEFINE_LOG_CATEGORY(LogAssert, Error);
 				std::abort();                                                       \
 			}                                                                       \
 		} while (false)
+
+	/** For INTERNAL usage only. Use JE_ASSERT() instead. */
+	#define JE_PRIVATE_ASSERT(Expr) JE_PRIVATE_ASSERT_F(Expr, "Abort.")
 
 #else
 	#define JE_ASSERT(Expr, Message) void(0)

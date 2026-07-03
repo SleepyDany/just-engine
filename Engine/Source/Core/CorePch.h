@@ -2,6 +2,7 @@
 
 // C++ includes
 #include <algorithm>
+#include <any>
 #include <cassert>
 #include <chrono>
 #include <cmath>
@@ -13,10 +14,10 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <ranges>
 #include <set>
 #include <sstream>
-#include <stacktrace>
 #include <string>
 #include <string_view>
 #include <thread>
