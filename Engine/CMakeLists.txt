@@ -77,6 +77,14 @@ target_include_directories(${PROJECT_NAME}
 
 je_setup_pch(${PROJECT_NAME} Source/Core/CorePch.cpp Source/Core/CorePch.h JE_ENGINE_SOURCES)
 
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    $<$<CONFIG:Debug>:_DEBUG>
+    $<$<CONFIG:Debug>:JE_DEBUG>
+    
+    $<$<CONFIG:Release>:NDEBUG>
+    $<$<CONFIG:Release>:JE_RELEASE>
+)
+
 if (JE_CXX_MSVC)
     target_compile_options(${PROJECT_NAME} PUBLIC /MP /Zc:preprocessor)
     target_compile_options(${PROJECT_NAME}Exe PUBLIC /MP /Zc:preprocessor)

@@ -1,7 +1,7 @@
 #pragma once
 
 // TODO: how to define JE_USE_ASSERTS? Debug only?
-#if _DEBUG && !defined(JE_USE_ASSERTS)
+#if JE_DEBUG && !defined(JE_USE_ASSERTS)
 	#define JE_USE_ASSERTS
 #endif
 
@@ -43,6 +43,8 @@ JE_DEFINE_LOG_CATEGORY(LogAssert, Error);
 	#define JE_PRIVATE_ASSERT(Expr) JE_PRIVATE_ASSERT_F(Expr, "Abort.")
 
 #else
-	#define JE_ASSERT(Expr, Message) void(0)
-	#define JE_PRIVATE_ASSERT(Expr, Message) void(0)
+	#define JE_ASSERT_F(Expr, Message) void(0)
+	#define JE_ASSERT(Expr) void(0)
+	#define JE_PRIVATE_ASSERT_F(Expr, Message) void(0)
+	#define JE_PRIVATE_ASSERT(Expr) void(0)
 #endif

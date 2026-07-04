@@ -8,6 +8,9 @@
 	#include <dlfcn.h>
 	#include <execinfo.h>
 
+	#include <cstdio>
+	#include <cstring>
+
 JE::FLinuxStacktraceUtility::FLinuxStacktraceUtility()
 	: IStacktraceUtility()
 {
@@ -67,8 +70,8 @@ JE::FStacktraceEntry JE::FLinuxStacktraceUtility::ExtractStacktraceEntry(void* _
 
 		if (dlInfo.dli_fname)
 		{
-			const char* fileName = strrchr(dlInfo.dli_fname, '/');
-			stacktraceEntry.File = fileName ? fileName + 1 : dlInfo.dli_fname;
+			const char* fileName = std::strrchr(dlInfo.dli_fname, '/');
+			std::string::stacktraceEntry.File = fileName ? fileName + 1 : dlInfo.dli_fname;
 		}
 
 		size_t openBracketIndex = mangledEntry.find_last_of('[');
