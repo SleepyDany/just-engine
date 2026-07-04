@@ -30,7 +30,8 @@ void JE::FLinuxStacktraceUtility::CollectStacktrace(uint32 _stacktraceDepth, uin
 {
 	Stacktrace.clear();
 
-	void* buffer[_stacktraceDepth + _skipFirstEntryCount];
+	std::vector<void*> bufferVector(_stacktraceDepth + _skipFirstEntryCount);
+	void** buffer = bufferVector.data();
 	int32 frameCount = backtrace(buffer, _stacktraceDepth + _skipFirstEntryCount);
 	char** symbols = backtrace_symbols(buffer, frameCount);
 
@@ -71,7 +72,7 @@ JE::FStacktraceEntry JE::FLinuxStacktraceUtility::ExtractStacktraceEntry(void* _
 		if (dlInfo.dli_fname)
 		{
 			const char* fileName = std::strrchr(dlInfo.dli_fname, '/');
-			std::string::stacktraceEntry.File = fileName ? fileName + 1 : dlInfo.dli_fname;
+			stacktraceEntry.File = fileName ? fileName + 1 : dlInfo.dli_fname;
 		}
 
 		size_t openBracketIndex = mangledEntry.find_last_of('[');
