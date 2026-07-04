@@ -89,7 +89,7 @@ jobs:
         run: cmake -B ${{github.workspace}}/Build -DCMAKE_BUILD_TYPE=${{inputs.build_type}}
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/Build --config ${{inputs.build_type}} -v --target ${{inputs.target}}
+        run: cmake --build ${{github.workspace}}/Build --config ${{inputs.build_type}} -v -j8 --target ${{inputs.target}}
 
       - name: Archive artifacts
         if: inputs.upload_artifacts && inputs.platform == 'linux'

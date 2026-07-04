@@ -1,5 +1,6 @@
 #include "LogManager.h"
 
+#include "Assertions/Assert.h"
 #include "Impls/ConsoleLoggerImpl.h"
 #include "Impls/FileLoggerImpl.h"
 
@@ -41,8 +42,9 @@ JE::FLogManager::~FLogManager()
 
 	for (auto& [implId, loggerImpl] : LoggerImpls)
 	{
-		// TODO: someone is still using LoggerImpls (besides Loggers)
-		assert(loggerImpl.use_count() == 1);
+		// TODO: Is it possible to be used not only by Loggers?
+		JE_PRIVATE_ASSERT_F(loggerImpl.use_count() == 1,
+			std::format("Current logger implementation {} has multiple users.", loggerImpl->GetId()));
 	}
 	LoggerImpls.clear();
 }
@@ -61,7 +63,7 @@ JE::FLogger& JE::FLogManager::GetLogger(const FLogCategory& _logCategory)
 		return loggerIter->second;
 	}
 
-	assert(_logCategory.IsValid());
+	JE_PRIVATE_ASSERT_F(_logCategory.IsValid(), "Invalid log category.");
 
 	Loggers.try_emplace(_logCategory.GetId(), _logCategory, DefaultFormatter, DefaultLoggerImpls);
 
@@ -83,7 +85,8 @@ std::shared_ptr<JE::FLoggerImpl> JE::FLogManager::RegisterLoggerImpl(FLoggerImpl
 
 	if (const auto loggerImpl = GetLoggerImpl(_loggerImpl->GetId()))
 	{
-		// TODO: assert(loggerImpl.get() == _loggerImpl)
+		// TODO (?): JE_PRIVATE_ASSERT(loggerImpl.get() == _loggerImpl,
+		// 	std::format("Logger implementation {} already exists during registration.", _loggerImpl->GetId()));
 		return loggerImpl;
 	}
 

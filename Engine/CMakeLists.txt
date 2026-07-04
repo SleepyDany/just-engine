@@ -23,7 +23,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(JE_ENGINE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 #------------------------------
-# Project setup
+# Project compile/link options
 #------------------------------
 
 add_executable(${PROJECT_NAME}Exe
@@ -75,10 +75,35 @@ target_include_directories(${PROJECT_NAME}
     ${JE_ENGINE_INCLUDES}
 )
 
+je_setup_pch(${PROJECT_NAME} Source/Core/CorePch.cpp Source/Core/CorePch.h JE_ENGINE_SOURCES)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    $<$<CONFIG:Debug>:_DEBUG>
+    $<$<CONFIG:Debug>:JE_DEBUG>
+    
+    $<$<CONFIG:Release>:NDEBUG>
+    $<$<CONFIG:Release>:JE_RELEASE>
+)
+
+if (JE_CXX_MSVC)
+    target_compile_options(${PROJECT_NAME} PUBLIC /MP /Zc:preprocessor)
+    target_compile_options(${PROJECT_NAME}Exe PUBLIC /MP /Zc:preprocessor)
+elseif (JE_CXX_CLANG)
+    # -rdynamic: for linux-specific stacktrace
+    target_compile_options(${PROJECT_NAME} PUBLIC -g -std=c++23 -stdlib=libstdc++ -fno-omit-frame-pointer -rdynamic)
+    target_compile_options(${PROJECT_NAME}Exe PUBLIC -g -std=c++23 -stdlib=libstdc++ -fno-omit-frame-pointer -rdynamic)
+endif()
+
+# for <stacktrace> in Clang
+if (WIN32)
+    target_link_libraries(${PROJECT_NAME} PUBLIC dbghelp)
+elseif (LINUX)
+    target_link_libraries(${PROJECT_NAME} PUBLIC dl pthread)
+endif()
 target_link_libraries(${PROJECT_NAME}Exe PRIVATE ${PROJECT_NAME})
 
 #------------------------------
-# Target options
+# Project folder structure
 #------------------------------
 
 set_target_properties(${PROJECT_NAME}Exe PROPERTIES FOLDER Engine)
@@ -86,11 +111,3 @@ set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER Engine)
 
 je_create_ide_folders(JE_ENGINE_SOURCES)
 je_create_ide_folders(Source/Core/CoreMain.cpp)
-
-# je_setup_pch(${PROJECT_NAME}Exe Source/Core/CorePch.cpp Source/Core/CorePch.cpp Source/Core/CoreMain.cpp)
-je_setup_pch(${PROJECT_NAME} Source/Core/CorePch.cpp Source/Core/CorePch.h JE_ENGINE_SOURCES)
-
-if (MSVC)
-    target_compile_options(${PROJECT_NAME} PUBLIC /MP /Zc:preprocessor)
-    target_compile_options(${PROJECT_NAME}Exe PUBLIC /MP /Zc:preprocessor)
-endif()

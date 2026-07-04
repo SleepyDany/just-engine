@@ -9,9 +9,11 @@ macro(je_system_info)
     endif()
 
     message("Compiler: ${CMAKE_CXX_COMPILER_ID}")
-    if (MSVC)
+    if (JE_CXX_MSVC)
         message("MSVC version: ${MSVC_VERSION}")
         message("MSVC toolset: ${MSVC_TOOLSET_VERSION}")
+    elseif (JE_CXX_CLANG)
+        message("Clang version: ${CMAKE_CXX_COMPILER_VERSION}")
     endif()
 
     message("Compiler C++ flags: ${CMAKE_CXX_FLAGS}")
@@ -50,15 +52,12 @@ function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
     # extract pch filename
     get_filename_component(PCH_HEADER_NAME ${PCH_HEADER} NAME)
 
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CLANG TRUE)
-    endif()
-
     # create by /Yc .pch file from PCH_SOURCE
     target_sources(${TARGET} PRIVATE ${PCH_HEADER} ${PCH_SOURCE})
-    if (MSVC)
+
+    if (JE_CXX_MSVC)
         set_source_files_properties(${PCH_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc${PCH_HEADER_NAME}")
-    else(CLANG) # Clang
+    elseif (JE_CXX_CLANG)
         set(PCH_HEADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${PCH_HEADER})
         # TODO: Target.dir/ is default directory for build .obj/.o files...
         set(PCH_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dir/$<CONFIG>/${PCH_HEADER_NAME}.pch)
@@ -87,9 +86,9 @@ function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
     endforeach()
 
     # add PCH_HEADER to TARGET includes
-    if (MSVC)
+    if (JE_CXX_MSVC)
         target_compile_options(${TARGET} PRIVATE "/FI${PCH_HEADER_NAME}")
-    elseif (CLANG)
+    elseif (JE_CXX_CLANG)
         target_compile_options(${TARGET} PRIVATE -include ${CMAKE_CURRENT_SOURCE_DIR}/${PCH_HEADER})
     endif()
 endfunction()

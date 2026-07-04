@@ -19,6 +19,14 @@ project(JE
 set(CMAKE_SUPPRESS_REGENERATION ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(JE_CXX_MSVC TRUE)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(JE_CXX_CLANG TRUE)
+else()
+    message(FATAL_ERROR "C++ compiler is not supported.")
+endif()
+
 set(JE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(JE_TOOLS_DIR ${JE_ROOT_DIR}/Tools)
 set(JE_SAVED_DIR ${JE_ROOT_DIR}/Saved)
