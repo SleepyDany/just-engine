@@ -1,14 +1,14 @@
-#include "StacktraceUtilities.h"
+#include "StacktraceProvider.h"
 
 #include "CoreDefines.h"
 
 #ifdef JE_PLATFORM_WINDOWS
-	#include "Platform/Windows/WindowsStacktrace.h"
+	#include "Windows/WindowsStacktraceProvider.h"
 #elifdef JE_PLATFORM_LINUX
-	#include "Platform/Linux/LinuxStacktrace.h"
+	#include "Linux/LinuxStacktrace.h"
 #endif
 
-JE::IStacktraceUtility::IStacktraceUtility()
+JE::IStacktraceProvider::IStacktraceProvider()
 {
 	DefaultFormatter = [](const FStacktraceEntry& _entry)
 	{
@@ -16,22 +16,22 @@ JE::IStacktraceUtility::IStacktraceUtility()
 	};
 }
 
-JE::IStacktraceUtility* JE::IStacktraceUtility::Get()
+JE::IStacktraceProvider* JE::IStacktraceProvider::Get()
 {
 #ifdef JE_PLATFORM_WINDOWS
-	static std::unique_ptr<IStacktraceUtility> stacktraceUtility = std::make_unique<FWindowsStacktraceUtility>();
+	static std::unique_ptr<IStacktraceProvider> stacktraceProvider = std::make_unique<FWindowsStacktraceProvider>();
 #elifdef JE_PLATFORM_LINUX
-	static std::unique_ptr<IStacktraceUtility> stacktraceUtility = std::make_unique<FLinuxStacktraceUtility>();
+	static std::unique_ptr<IStacktraceProvider> stacktraceProvider = std::make_unique<FLinuxStacktraceProvider>();
 #endif
-	return stacktraceUtility.get();
+	return stacktraceProvider.get();
 }
 
-const std::vector<JE::FStacktraceEntry>& JE::IStacktraceUtility::GetStacktraceEntries() const
+const std::vector<JE::FStacktraceEntry>& JE::IStacktraceProvider::GetStacktraceEntries() const
 {
 	return Stacktrace;
 }
 
-std::string JE::IStacktraceUtility::GetFormattedStacktrace(const TStacktraceFormatter& _formatter) const
+std::string JE::IStacktraceProvider::GetFormattedStacktrace(const TStacktraceFormatter& _formatter) const
 {
 	const TStacktraceFormatter& formatter = _formatter ? _formatter : DefaultFormatter;
 

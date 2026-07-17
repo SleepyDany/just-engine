@@ -1,5 +1,5 @@
 #ifdef JE_PLATFORM_WINDOWS
-	#include "WindowsStacktrace.h"
+	#include "WindowsStacktraceProvider.h"
 
 	#include "Assertions/Assert.h"
 
@@ -9,7 +9,7 @@
 	#include <dbghelp.h>
 // clang-format on
 
-void JE::FWindowsStacktraceUtility::CollectStacktrace(uint32 _stacktraceDepth, uint32 _skipFirstEntryCount)
+void JE::FWindowsStacktraceProvider::CollectStacktrace(uint32 _stacktraceDepth, uint32 _skipFirstEntryCount)
 {
 	Stacktrace.clear();
 
@@ -77,7 +77,7 @@ void JE::FWindowsStacktraceUtility::CollectStacktrace(uint32 _stacktraceDepth, u
 	SymCleanup(process);
 }
 
-JE::FStacktraceEntry JE::FWindowsStacktraceUtility::ExtractStacktraceEntry(void* _address, const std::any& _symbol, int32 _index) const
+JE::FStacktraceEntry JE::FWindowsStacktraceProvider::ExtractStacktraceEntry(void* _address, const std::any& _symbol, int32 _index) const
 {
 	JE_PRIVATE_ASSERT(_address);
 	JE_PRIVATE_ASSERT(_symbol.has_value());

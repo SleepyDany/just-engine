@@ -27,7 +27,7 @@ namespace JE
 	using TStacktraceFormatter = std::function<std::string(const FStacktraceEntry&)>;
 
 	/** Utility for collecting stacktrace. Platform-specific. */
-	class JE_API IStacktraceUtility
+	class JE_API IStacktraceProvider
 	{
 		//- Types ------------------------
 		//- Events -----------------------
@@ -42,17 +42,17 @@ namespace JE
 
 		//- Lifecycle --------------------
 	public:
-		IStacktraceUtility();
-		virtual ~IStacktraceUtility() = default;
+		IStacktraceProvider();
+		virtual ~IStacktraceProvider() = default;
 
-		IStacktraceUtility(const IStacktraceUtility&) = delete;
-		IStacktraceUtility& operator=(const IStacktraceUtility&) = delete;
-		IStacktraceUtility(IStacktraceUtility&&) = delete;
-		IStacktraceUtility& operator=(IStacktraceUtility&&) = delete;
+		IStacktraceProvider(const IStacktraceProvider&) = delete;
+		IStacktraceProvider& operator=(const IStacktraceProvider&) = delete;
+		IStacktraceProvider(IStacktraceProvider&&) = delete;
+		IStacktraceProvider& operator=(IStacktraceProvider&&) = delete;
 
 		//- Methods ----------------------
 	public:
-		static IStacktraceUtility* Get();
+		static IStacktraceProvider* Get();
 
 		/** Collect @_stacktraceDepth stacktrace entries after skipping first @_skipFirstEntryCount. Could be EXPENSIVE. */
 		virtual void CollectStacktrace(uint32 _stacktraceDepth, uint32 _skipFirstEntryCount = 1) = 0;
