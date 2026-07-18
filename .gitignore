@@ -33,6 +33,8 @@
 .vs
 .idea
 
-# Build System
-Build
-Saved
+# Build System files
+Build/
+
+# Temporary/Local files
+Saved/

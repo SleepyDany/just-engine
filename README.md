@@ -4,6 +4,8 @@ Just a game engine
 
 ## Quick start
 
+Clone repository: git clone --recurse-submodule https://github.com/SleepyDany/just-engine.git JustEngine
+
 Run ./generate_prj_files.bat
 
 ### Code style

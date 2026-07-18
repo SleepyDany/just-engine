@@ -106,10 +106,14 @@ elseif (LINUX)
 endif()
 
 # GLFW
-je_setup_thirdparty(${PROJECT_NAME} ${JE_THIRDPARTY_DIR}/glfw-3.4/lib/glfw3.lib ${JE_THIRDPARTY_DIR}/glfw-3.4/include)
-# OpenGL
-target_link_libraries(${PROJECT_NAME} PRIVATE opengl32.lib)
+target_include_directories(${PROJECT_NAME} PRIVATE ${JE_THIRDPARTY_DIR}/GLFW/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
+# OpenGL
+find_package(OpenGL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
+
+# JustEngine exe
 target_link_libraries(${PROJECT_NAME}Exe PRIVATE ${PROJECT_NAME})
 
 #------------------------------
