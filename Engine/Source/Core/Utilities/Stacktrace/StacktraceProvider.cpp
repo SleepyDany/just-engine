@@ -5,7 +5,7 @@
 #ifdef JE_PLATFORM_WINDOWS
 	#include "Windows/WindowsStacktraceProvider.h"
 #elifdef JE_PLATFORM_LINUX
-	#include "Linux/LinuxStacktrace.h"
+	#include "Linux/LinuxStacktraceProvider.h"
 #endif
 
 JE::IStacktraceProvider::IStacktraceProvider()
