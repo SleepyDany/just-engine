@@ -1,13 +1,15 @@
 #pragma once
 
 #include "CoreDefines.h"
-#include "Types/BaseTypes.h"
 
 namespace JE
 {
+	/** Base class for clients logic implementation. */
 	class JE_API FApplication
 	{
 		//- Types ------------------------
+		friend class FEngine;
+
 		//- Events -----------------------
 		//- Variables --------------------
 
@@ -16,19 +18,25 @@ namespace JE
 		FApplication() = default;
 		virtual ~FApplication() = default;
 
+	protected:
 		/** Initialize all application systems. */
-		virtual bool Initialize();
+		virtual void Initialize();
 
-		/** Main application loop. */
-		virtual void Run();
+		/** Handlers during engine run. */
+		virtual void OnEvent();
+		virtual void OnUpdate(float _deltaTime);
+		virtual void OnRender();
 
-		/** Shutdown all application systems and return exit code. */
-		virtual int32 Shutdown();
+		/** Shutdown all application systems. */
+		virtual void Shutdown();
 
 		//- Methods ----------------------
+	public:
+		/** Does application have windows. */
+		virtual bool IsWindowed() const;
 	};
 
 	/** Clients custom app implementation. */
-	FApplication* CreateApplication(int32 _argCount, char** _argString);
+	FApplication* CreateApplication();
 
 } // namespace JE

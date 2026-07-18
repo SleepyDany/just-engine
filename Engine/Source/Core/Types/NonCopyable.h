@@ -1,16 +1,16 @@
 #pragma once
 
-#include <Core/CoreDefines.h>
+#include "Core/CoreDefines.h"
 
 namespace JE
 {
 	class JE_API FNonCopyable
 	{
-	protected:
+	public:
 		FNonCopyable() = default;
-		~FNonCopyable() = default;
+		virtual ~FNonCopyable() = default;
 
-	private:
+	protected:
 		FNonCopyable(const FNonCopyable&) = delete;
 		FNonCopyable& operator=(const FNonCopyable&) = delete;
 	};

@@ -94,12 +94,22 @@ elseif (JE_CXX_CLANG)
     target_compile_options(${PROJECT_NAME}Exe PUBLIC -g -std=c++23 -stdlib=libstdc++ -fno-omit-frame-pointer -rdynamic)
 endif()
 
-# for <stacktrace> in Clang
+#------------------------------
+# Libraries linking
+#------------------------------
+
+# Stacktrace helpers
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC dbghelp)
 elseif (LINUX)
     target_link_libraries(${PROJECT_NAME} PUBLIC dl pthread)
 endif()
+
+# GLFW
+je_setup_thirdparty(${PROJECT_NAME} ${JE_THIRDPARTY_DIR}/glfw-3.4/lib/glfw3.lib ${JE_THIRDPARTY_DIR}/glfw-3.4/include)
+# OpenGL
+target_link_libraries(${PROJECT_NAME} PRIVATE opengl32.lib)
+
 target_link_libraries(${PROJECT_NAME}Exe PRIVATE ${PROJECT_NAME})
 
 #------------------------------

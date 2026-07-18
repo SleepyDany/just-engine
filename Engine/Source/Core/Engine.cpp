@@ -1,59 +1,142 @@
 #include "Engine.h"
 
+#include "Application/Window/Window.h"
 #include "Assertions/Assert.h"
-#include "Assertions/Check.h"
 
-#include "Log/Log.h"
+#include <GLFW/glfw3.h>
+
+/** Global Engine instance definition. */
+std::unique_ptr<JE::FEngine> JE::gEngine = nullptr;
 
 JE::FEngine::FEngine(int32 _argCount, char** _argString)
 {
-	LaunchParameters.reserve(_argCount);
+	std::ostringstream record;
 
-	// TODO: do we need first parameter (full .exe path)?
-	for (int32 i = 0; i < _argCount; ++i)
+	// TODO: cmdline parser
+	CommandlineParameters.reserve(_argCount - 1);
+	// skip .exe full path at 0 index
+	for (int32 index = 1; index < _argCount; ++index)
 	{
-		LaunchParameters.emplace_back(_argString[i]);
+		CommandlineParameters.emplace_back(_argString[index]);
+		record << CommandlineParameters.back() << (index != _argCount - 1 ? " " : "");
 	}
+	Commandline = record.str();
+
+	JE_LOG(LogEngine, Log, "Engine commandline: {}.", record.str());
 }
 
 JE::FEngine::~FEngine()
 {
-	LaunchParameters.clear();
 }
 
 bool JE::FEngine::Initialize()
 {
+	// TODO: how to start application and when?
+	JE_ASSERT(Application);
+	Application->Initialize();
+
+	if (Application->IsWindowed())
+	{
+		FWindowProperties windowProperties{
+			.Title = "Just Engine",
+			.Width = 1280,
+			.Height = 720,
+		};
+
+		Window = std::shared_ptr<IWindow>(IWindow::Create(windowProperties));
+		if (!Window)
+		{
+			ExitCode = EXIT_FAILURE;
+			return false;
+		}
+		Window->SetActive(true);
+	}
+
+	bIsRunning = true;
 	return true;
 }
 
 void JE::FEngine::Run()
 {
-	while (true)
+	PrevFrameTimePoint = std::chrono::system_clock::now();
+
+	while (bIsRunning)
 	{
-		// JE_LOG(LogCore, Log, "JustEngine loop...");
+		++FrameCounter;
 
-		JE_CHECK(false);
-		JE_CHECK_F(false, "check with format!");
-		JE_CHECK_CF(false, LogCore, "check with category!");
+		// TODO: first delta time will be 0.0f. How to handle?
+		std::chrono::system_clock::time_point curFrameTimePoint = std::chrono::system_clock::now();
+		DeltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(curFrameTimePoint - PrevFrameTimePoint).count();
+		PrevFrameTimePoint = curFrameTimePoint;
 
-		bool boolka = true;
-		for (;;)
+		PollEvents();
+		Update(DeltaTime);
+		Render();
+
+		EndFrame();
+
+		if (Window && Window->ShouldClose())
 		{
-			if (boolka)
-			{
-				boolka = false;
-				JE_CHECK_CONTINUE_F(false, "check with continue!");
-			}
-			JE_CHECK_BREAK_F(false, "check with break!");
+			bIsRunning = false;
 		}
+	}
+}
 
-		JE_CHECK_RETURN_F(false, void(0), "check with return!");
+void JE::FEngine::PollEvents()
+{
+	if (Window)
+	{
+		Window->PollEvents();
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(250));
+		// TODO: foreach event?
+		OnEvent();
+		Application->OnEvent();
+	}
+}
+
+void JE::FEngine::OnEvent()
+{
+}
+
+void JE::FEngine::Update(float _deltaTime)
+{
+	JE_LOG(LogEngine, Log, "Engine update: FrameCounter={}, DeltaTime={:.5f}.", FrameCounter, DeltaTime);
+	Application->OnUpdate(_deltaTime);
+}
+
+void JE::FEngine::Render()
+{
+	glClearColor(1.0f, 0.5f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	Application->OnRender();
+}
+
+void JE::FEngine::EndFrame()
+{
+	if (Window)
+	{
+		Window->SwapBuffers();
 	}
 }
 
 int32 JE::FEngine::Shutdown()
 {
-	return EXIT_SUCCESS;
+	Application->Shutdown();
+	return ExitCode;
+}
+
+void JE::FEngine::SetApplication(FApplication* _application)
+{
+	Application.reset(_application);
+}
+
+std::weak_ptr<JE::FApplication> JE::FEngine::GetApplication()
+{
+	return Application;
+}
+
+std::weak_ptr<JE::IWindow> JE::FEngine::GetActiveWindow()
+{
+	return Window;
 }

@@ -92,3 +92,9 @@ function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
         target_compile_options(${TARGET} PRIVATE -include ${CMAKE_CURRENT_SOURCE_DIR}/${PCH_HEADER})
     endif()
 endfunction()
+
+# TODO:
+function(je_setup_thirdparty TARGET LIB_PATH INCLUDE_DIR)
+    target_link_libraries(${TARGET} PUBLIC ${LIB_PATH})
+    target_include_directories(${TARGET} PUBLIC ${INCLUDE_DIR})
+endfunction()
