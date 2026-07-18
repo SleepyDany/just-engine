@@ -85,6 +85,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y libwayland-dev libxkbcommon-dev wayland-protocols libwayland-bin
+          sudo apt install -y libgl1-mesa-dev
 
       - name: Checkout ${{inputs.branch}}
         uses: actions/checkout@v5
@@ -108,7 +109,7 @@ jobs:
 
       - name: Upload artifacts
         if: inputs.upload_artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: artifacts-${{inputs.target}}-${{inputs.platform}}-${{inputs.build_type}}
           path: artifacts-${{inputs.target}}-${{inputs.platform}}-${{inputs.build_type}}.zip
