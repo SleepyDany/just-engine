@@ -66,7 +66,7 @@ on:
         type: boolean
 
 jobs:
-  build:
+  Build:
     runs-on: ${{inputs.platform == 'windows' && 'windows-latest' || inputs.platform == 'linux' && 'ubuntu-latest'}}
     timeout-minutes: 120
     env:
@@ -79,6 +79,12 @@ jobs:
           echo "Target: ${{ inputs.target }}"
           echo "Build type: ${{ inputs.build_type }}"
           echo "Upload artifacts: ${{ inputs.upload_artifacts }}"
+
+      - name: Install dependencies
+        if: inputs.platform == 'linux'
+        run: |
+          sudo apt update
+          sudo apt install -y libwayland-dev libxkbcommon-dev wayland-protocols libwayland-bin
 
       - name: Checkout ${{inputs.branch}}
         uses: actions/checkout@v5
@@ -104,5 +110,5 @@ jobs:
         if: inputs.upload_artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: artifacts-${{inputs.platform}}-${{inputs.build_type}}
-          path: artifacts-${{inputs.platform}}-${{inputs.build_type}}.zip
+          name: artifacts-${{inputs.target}}-${{inputs.platform}}-${{inputs.build_type}}
+          path: artifacts-${{inputs.target}}-${{inputs.platform}}-${{inputs.build_type}}.zip

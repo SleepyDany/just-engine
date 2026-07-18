@@ -10,20 +10,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  JustEngine-Debug:
+  JustEngine-Linux-Debug:
     uses: ./.github/workflows/build-custom.yml
     with:
       branch: ${{github.ref_name}}
       platform: "linux"
       target: "JustEngineExe"
       build_type: "Debug"
-      upload_artifacts: true
+      upload_artifacts: false
 
-  JustEngine-Release:
+  JustEngine-Linux-Release:
     uses: ./.github/workflows/build-custom.yml
     with:
       branch: ${{github.ref_name}}
       platform: "linux"
       target: "JustEngineExe"
       build_type: "Release"
-      upload_artifacts: true
+      upload_artifacts: false

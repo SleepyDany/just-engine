@@ -6,7 +6,7 @@ Just a game engine
 
 Clone repository: git clone --recurse-submodule https://github.com/SleepyDany/just-engine.git JustEngine
 
-Run ./generate_prj_files.bat
+Generate solution: run generate_prj_files.bat
 
 ### Code style
 1. .clang-format
