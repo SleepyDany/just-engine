@@ -15,7 +15,7 @@ JE::FLogManager::FLogManager()
 		// TODO: add colors for diff verbosities
 		// TODO: fix time shift (local time)
 		return std::format("[{:%d.%m.%Y %H:%M:%S}]   {:<7}   {:<20}   {}   [{}({}): {}]\n",
-			_logRecord.TimePoint,
+			_logRecord.Time,
 			JE::ToString(_logRecord.Verbosity),
 			_logRecord.LogCategory.GetId(),
 			_logRecord.Message,

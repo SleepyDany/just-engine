@@ -6,4 +6,4 @@
 #include "Log/Logger.h"
 
 /** Common Engine's log categories */
-JE_DEFINE_LOG_CATEGORY(LogCore, Log);
+JE_DEFINE_LOG_CATEGORY(LogEngine, Log);

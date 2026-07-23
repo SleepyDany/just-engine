@@ -39,4 +39,5 @@ namespace JE
 		/** Transfer implementation's raw pointer control to manager. It will be handled and deleted properly here. */
 		std::shared_ptr<FLoggerImpl> RegisterLoggerImpl(FLoggerImpl* _loggerImpl);
 	};
+
 } // namespace JE

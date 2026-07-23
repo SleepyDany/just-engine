@@ -2,6 +2,7 @@
 
 #include "Application/Window/Window.h"
 #include "Assertions/Assert.h"
+#include "Types/Time/Timespan.h"
 
 #include <GLFW/glfw3.h>
 
@@ -31,6 +32,8 @@ JE::FEngine::~FEngine()
 
 bool JE::FEngine::Initialize()
 {
+	EngineStartTime = FDateTime::Now();
+
 	// TODO: how to start application and when?
 	JE_ASSERT(Application);
 	Application->Initialize();
@@ -58,16 +61,17 @@ bool JE::FEngine::Initialize()
 
 void JE::FEngine::Run()
 {
-	PrevFrameTimePoint = std::chrono::system_clock::now();
+	using namespace std::chrono_literals;
+	PrevFrameTime = FDateTime::Now() - 1ms;
+	FDateTime curFrameTime = PrevFrameTime;
 
 	while (bIsRunning)
 	{
 		++FrameCounter;
 
-		// TODO: first delta time will be 0.0f. How to handle?
-		std::chrono::system_clock::time_point curFrameTimePoint = std::chrono::system_clock::now();
-		DeltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(curFrameTimePoint - PrevFrameTimePoint).count();
-		PrevFrameTimePoint = curFrameTimePoint;
+		curFrameTime = FDateTime::Now();
+		DeltaTime = (curFrameTime - PrevFrameTime).GetTotalSeconds();
+		PrevFrameTime = curFrameTime;
 
 		PollEvents();
 		Update(DeltaTime);

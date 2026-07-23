@@ -3,8 +3,7 @@
 #include "Application/Application.h"
 #include "Log/LogMacros.h"
 #include "Types/NonCopyable.h"
-
-JE_DEFINE_LOG_CATEGORY(LogEngine, Log);
+#include "Types/Time/DateTime.h"
 
 namespace JE
 {
@@ -27,15 +26,16 @@ namespace JE
 		std::shared_ptr<FApplication> Application;
 
 		// TODO: rework with WindowManager
-		/** Main application window; */
+		/** Main application window. */
 		std::shared_ptr<IWindow> Window;
 
 		int32 ExitCode = EXIT_SUCCESS;
 		bool bIsRunning = false;
 
-		/** Frame time */
+		/** Frame time. */
+		FDateTime EngineStartTime;
 		float DeltaTime = -1.0f;
-		std::chrono::system_clock::time_point PrevFrameTimePoint;
+		FDateTime PrevFrameTime;
 
 		uint64 FrameCounter = 0;
 

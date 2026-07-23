@@ -17,7 +17,7 @@ namespace JE
 		bool bShouldPrintToScreen = false;
 
 		/** Enable/disable breakpoint on check. */
-		bool bShouldBreak = true;
+		bool bShouldBreak = false;
 
 		/** Depth of the captured callstack. */
 		uint32 StacktraceDepth = 50;
