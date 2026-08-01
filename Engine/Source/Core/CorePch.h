@@ -30,3 +30,5 @@
 // JE includes
 #include "CoreDefines.h"
 #include "Types/BaseTypes.h"
+#include "Types/Time/DateTime.h"
+#include "Types/Time/Timespan.h"
