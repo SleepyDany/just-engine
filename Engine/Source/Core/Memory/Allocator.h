@@ -42,7 +42,7 @@ namespace JE
 
 		//- Lifecycle --------------------
 	public:
-		FInlineAllocator() noexcept
+		explicit FInlineAllocator() noexcept
 			: Size(0)
 		{
 			static_assert(StackSize > sizeof(void*), "StackSize shouldn't be smaller than the size of the pointer.");
@@ -53,7 +53,7 @@ namespace JE
 			Free();
 		}
 
-		FInlineAllocator(const FInlineAllocator& _allocator) noexcept
+		explicit FInlineAllocator(const FInlineAllocator& _allocator) noexcept
 		{
 			Allocate(_allocator.GetSize());
 			if (!_allocator.IsEmpty())
@@ -78,7 +78,7 @@ namespace JE
 			return *this;
 		}
 
-		FInlineAllocator(FInlineAllocator&& _allocator) noexcept
+		explicit FInlineAllocator(FInlineAllocator&& _allocator) noexcept
 		{
 			if (_allocator.IsStacked())
 			{
@@ -117,7 +117,7 @@ namespace JE
 			return *this;
 		}
 
-		bool operator==(const FInlineAllocator& _allocator) noexcept
+		bool operator==(const FInlineAllocator& _allocator) const noexcept
 		{
 			return Size == _allocator.Size && std::memcmp(GetData(), _allocator.GetData(), Size) == 0;
 		}

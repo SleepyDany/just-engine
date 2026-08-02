@@ -145,10 +145,6 @@ namespace JE
 	template <class TLambda, class TReturn, class... TArgs>
 	class FLambdaDelegateInstance : public IDelegateBase<TReturn, TArgs...>
 	{
-		//- Types ------------------------
-	private:
-		using TFunctor = std::function<TReturn(TArgs...)>;
-
 		//- Variables --------------------
 	private:
 		TLambda Lambda;
@@ -165,7 +161,6 @@ namespace JE
 	public:
 		virtual TReturn Execute(TArgs&&... _args) const final
 		{
-			// JE_ASSERT(Lambda != nullptr);
 			return std::invoke(Lambda, std::forward<TArgs>(_args)...);
 		}
 	};
