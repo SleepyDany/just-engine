@@ -6,8 +6,6 @@ namespace JE
 {
 	class FTimespan;
 
-	// TODO: now we use time zone for time. Should we separate absolute UTC and zoned?
-
 	/** Class representing specific time point. */
 	class JE_API FDateTime : public FTimeBase
 	{

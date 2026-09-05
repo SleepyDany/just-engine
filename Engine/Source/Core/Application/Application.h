@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreDefines.h"
+#include "Types/BaseTypes.h"
 
 namespace JE
 {

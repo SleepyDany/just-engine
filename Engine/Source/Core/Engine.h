@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Application/Application.h"
-#include "Log/LogMacros.h"
 #include "Types/NonCopyable.h"
 #include "Types/Time/DateTime.h"
 
