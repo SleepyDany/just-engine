@@ -12,6 +12,30 @@ JE::FDelegateHandle::~FDelegateHandle()
 	Reset();
 }
 
+JE::FDelegateHandle::FDelegateHandle(FDelegateHandle&& _handle) noexcept
+{
+	if (*this == _handle)
+	{
+		return;
+	}
+
+	Id = _handle.Id;
+	_handle.Reset();
+}
+
+JE::FDelegateHandle& JE::FDelegateHandle::operator=(FDelegateHandle&& _handle) noexcept
+{
+	if (*this == _handle)
+	{
+		return *this;
+	}
+
+	Id = _handle.Id;
+	_handle.Reset();
+
+	return *this;
+}
+
 bool JE::FDelegateHandle::operator==(const FDelegateHandle& _handle) const
 {
 	return Id == _handle.Id;

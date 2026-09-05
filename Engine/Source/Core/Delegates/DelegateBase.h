@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Assertions/Assert.h"
 
 namespace JE
@@ -18,7 +19,7 @@ namespace JE
 		using Type = TReturn (TObject::*)(TArgs...);
 	};
 
-	class FDelegateHandle
+	class JE_API FDelegateHandle
 	{
 		//- Types ------------------------
 	public:
@@ -41,10 +42,10 @@ namespace JE
 		FDelegateHandle(EMode _mode = Empty);
 		~FDelegateHandle();
 
-		FDelegateHandle(const FDelegateHandle&) = default;
-		FDelegateHandle& operator=(const FDelegateHandle&) = default;
-		FDelegateHandle(FDelegateHandle&&) = default;
-		FDelegateHandle& operator=(FDelegateHandle&&) = default;
+		FDelegateHandle(const FDelegateHandle& _handle) = default;
+		FDelegateHandle& operator=(const FDelegateHandle& _handle) = default;
+		FDelegateHandle(FDelegateHandle&& _handle) noexcept;
+		FDelegateHandle& operator=(FDelegateHandle&& _handle) noexcept;
 
 		bool operator==(const FDelegateHandle& _handle) const;
 		bool operator!=(const FDelegateHandle& _handle) const;
@@ -62,7 +63,7 @@ namespace JE
 	};
 
 	template <class TReturn, class... TArgs>
-	class IDelegateBase
+	class JE_API IDelegateBase
 	{
 		//- Lifecycle --------------------
 	public:
@@ -73,10 +74,16 @@ namespace JE
 	public:
 		/** Delegate execution. */
 		virtual TReturn Execute(TArgs&&...) const = 0;
+
+		/** Returns owner object for delegate. Works only for Raw and SharedRaw delegates. */
+		virtual const void* GetOwner() const noexcept
+		{
+			return nullptr;
+		}
 	};
 
 	template <bool bConst, class TObject, class TReturn, class... TArgs>
-	class FRawDelegateInstance : public IDelegateBase<TReturn, TArgs...>
+	class JE_API FRawDelegateBase : public IDelegateBase<TReturn, TArgs...>
 	{
 		//- Types ------------------------
 	private:
@@ -90,7 +97,7 @@ namespace JE
 
 		//- Lifecycle --------------------
 	public:
-		explicit FRawDelegateInstance(TObject* _object, TMethod _method)
+		explicit FRawDelegateBase(TObject* _object, TMethod _method)
 			: IDelegateBase<TReturn, TArgs...>()
 			, ObjectPtr(_object)
 			, MethodPtr(_method)
@@ -105,10 +112,15 @@ namespace JE
 			JE_ASSERT(ObjectPtr != nullptr && MethodPtr != nullptr);
 			return std::invoke(MethodPtr, ObjectPtr, std::forward<TArgs>(_args)...);
 		}
+
+		virtual const void* GetOwner() const noexcept final
+		{
+			return ObjectPtr;
+		}
 	};
 
 	template <bool bConst, class TObject, class TReturn, class... TArgs>
-	class FSharedRawDelegateInstance : public IDelegateBase<TReturn, TArgs...>
+	class JE_API FSharedRawDelegateBase : public IDelegateBase<TReturn, TArgs...>
 	{
 		//- Types ------------------------
 	private:
@@ -122,7 +134,7 @@ namespace JE
 
 		//- Lifecycle --------------------
 	public:
-		explicit FSharedRawDelegateInstance(const std::shared_ptr<TObject>& _object, TMethod _method)
+		explicit FSharedRawDelegateBase(const std::shared_ptr<TObject>& _object, TMethod _method)
 			: IDelegateBase<TReturn, TArgs...>()
 			, WeakObjectPtr(_object)
 			, MethodPtr(_method)
@@ -140,10 +152,15 @@ namespace JE
 			JE_ASSERT(MethodPtr != nullptr);
 			return std::invoke(MethodPtr, ObjectPtr, std::forward<TArgs>(_args)...);
 		}
+
+		virtual const void* GetOwner() const noexcept final
+		{
+			return WeakObjectPtr.lock().get();
+		}
 	};
 
 	template <class TLambda, class TReturn, class... TArgs>
-	class FLambdaDelegateInstance : public IDelegateBase<TReturn, TArgs...>
+	class JE_API FLambdaDelegateBase : public IDelegateBase<TReturn, TArgs...>
 	{
 		//- Variables --------------------
 	private:
@@ -151,7 +168,7 @@ namespace JE
 
 		//- Lifecycle --------------------
 	public:
-		explicit FLambdaDelegateInstance(TLambda&& _lambda)
+		explicit FLambdaDelegateBase(TLambda&& _lambda)
 			: IDelegateBase<TReturn, TArgs...>()
 			, Lambda(std::forward<TLambda>(_lambda))
 		{
@@ -166,7 +183,7 @@ namespace JE
 	};
 
 	template <class TReturn, class... TArgs>
-	class FStaticDelegateInstance : public IDelegateBase<TReturn, TArgs...>
+	class JE_API FStaticDelegateBase : public IDelegateBase<TReturn, TArgs...>
 	{
 		//- Types ------------------------
 	private:
@@ -178,7 +195,7 @@ namespace JE
 
 		//- Lifecycle --------------------
 	public:
-		explicit FStaticDelegateInstance(TMethod _method)
+		explicit FStaticDelegateBase(TMethod _method)
 			: IDelegateBase<TReturn, TArgs...>()
 			, StaticMethodPtr(_method)
 		{

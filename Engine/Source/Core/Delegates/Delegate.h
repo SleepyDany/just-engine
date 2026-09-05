@@ -4,39 +4,217 @@
 #include "Memory/Allocator.h"
 
 #ifndef JE_DELEGATE_ALLOC_SIZE
-	/** Size for the inlined allocator. */
+	/**
+	 * Inline allocator stack-buffer size.\n
+	 * 32 bytes should be enough for most cases, but leave 64 to prevent heap allocations for lambdas with captures.
+	 */
 	#define JE_DELEGATE_ALLOC_SIZE 64
 #endif
 
 namespace JE
 {
+	template <class TReturn, class... TArgs>
+	class JE_API FDelegateInstance final
+	{
+		//- Types ------------------------
+	private:
+		using TDelegateBase = IDelegateBase<TReturn, TArgs...>;
+
+		//- Variables --------------------
+	private:
+		/** Inlined allocator for storing delegate instances. */
+		FInlineAllocator<JE_DELEGATE_ALLOC_SIZE> Allocator;
+
+		/** Delegate's instance handle. */
+		FDelegateHandle Handle;
+
+		//- Lifecycle --------------------
+	public:
+		FDelegateInstance()
+			: Allocator()
+			, Handle()
+		{
+		}
+
+		~FDelegateInstance() noexcept
+		{
+			Deinit<TDelegateBase>();
+		}
+
+		FDelegateInstance(const FDelegateInstance& _delegate) noexcept
+		{
+			if (*this == _delegate)
+			{
+				return;
+			}
+
+			Allocator = _delegate.Allocator;
+			Handle = _delegate.Handle;
+		}
+
+		FDelegateInstance& operator=(const FDelegateInstance& _delegate) noexcept
+		{
+			if (*this == _delegate)
+			{
+				return *this;
+			}
+
+			Allocator = _delegate.Allocator;
+			Handle = _delegate.Handle;
+			return *this;
+		}
+
+		FDelegateInstance(FDelegateInstance&& _delegate) noexcept
+		{
+			if (*this == _delegate)
+			{
+				return;
+			}
+
+			Allocator = std::move(_delegate.Allocator);
+			Handle = std::move(_delegate.Handle);
+		}
+
+		FDelegateInstance& operator=(FDelegateInstance&& _delegate) noexcept
+		{
+			if (*this == _delegate)
+			{
+				return *this;
+			}
+
+			Allocator = std::move(_delegate.Allocator);
+			Handle = std::move(_delegate.Handle);
+			return *this;
+		}
+
+		bool operator==(const FDelegateInstance& _delegate) const noexcept
+		{
+			// TODO: theoretically, shouldn't exist 2 delegates with equal handles, should it?
+			return Handle == _delegate.Handle && Allocator == _delegate.Allocator;
+		}
+
+		//- Methods ----------------------
+	public:
+		template <class TDelegate, class... TArgs2>
+			requires std::is_base_of_v<TDelegateBase, TDelegate>
+		static FDelegateInstance<TReturn, TArgs...> Create(TArgs2&&... _args)
+		{
+			FDelegateInstance<TReturn, TArgs...> delegateInstance;
+			delegateInstance.template Init<TDelegate>(std::forward<TArgs2>(_args)...);
+			JE_ASSERT(delegateInstance.IsBound());
+
+			return delegateInstance;
+		}
+
+		template <class TDelegate = TDelegateBase>
+			requires std::is_base_of_v<TDelegateBase, TDelegate>
+		TDelegate* Get()
+		{
+			return Allocator.Cast<TDelegate>();
+		}
+
+		template <class TDelegate = TDelegateBase>
+			requires std::is_base_of_v<TDelegateBase, TDelegate>
+		const TDelegate* Get() const
+		{
+			return Allocator.Cast<TDelegate>();
+		}
+
+		FDelegateHandle GetHandle() const
+		{
+			return Handle;
+		}
+
+		template <class TDelegate, class... TArgs2>
+			requires std::is_base_of_v<TDelegateBase, TDelegate>
+		void Init(TArgs2&&... _args)
+		{
+			Allocator.Allocate(sizeof(TDelegate));
+			TDelegate* const delegateBase = Allocator.Cast<TDelegate>();
+
+			JE_ASSERT(delegateBase);
+			std::construct_at(delegateBase, std::forward<TArgs2>(_args)...);
+
+			Handle = FDelegateHandle(FDelegateHandle::Generate);
+		}
+
+		template <class TDelegate = TDelegateBase>
+			requires std::is_base_of_v<TDelegateBase, TDelegate>
+		void Deinit()
+		{
+			if (Allocator.IsEmpty())
+			{
+				return;
+			}
+
+			TDelegate* const delegateBase = Allocator.Cast<TDelegate>();
+			JE_ASSERT(delegateBase);
+
+			std::destroy_at<TDelegate>(delegateBase);
+			Allocator.Free();
+			Handle.Reset();
+		}
+
+		TReturn Execute(TArgs&&... _args)
+		{
+			TDelegateBase* delegateBase = Get();
+			JE_ASSERT(delegateBase && IsBound());
+
+			return delegateBase->Execute(std::forward<TArgs>(_args)...);
+		}
+
+		TReturn ExecuteIfBound(TArgs&&... _args)
+		{
+			if (IsBound())
+			{
+				TDelegateBase* delegateBase = Get();
+				JE_ASSERT(delegateBase);
+
+				return delegateBase->Execute(std::forward<TArgs>(_args)...);
+			}
+
+			return TReturn{};
+		}
+
+		inline bool IsBound() const noexcept
+		{
+			return !Allocator.IsEmpty() && Handle.IsValid();
+		}
+
+		inline const void* GetOwner() const noexcept
+		{
+			const TDelegateBase* delegateBase = Get();
+			return delegateBase ? delegateBase->GetOwner() : nullptr;
+		}
+	};
+
 	// TODO: Test delegates behavior!
 	/**
 	 * Single-binding delegate implementation.
 	 */
 	template <class TReturn, class... TArgs>
-	class FDelegate
+	class JE_API FDelegate
 	{
 		//- Types ------------------------
 	private:
-		using TDelegateInstance = IDelegateBase<TReturn, TArgs...>;
+		using TDelegateBase = IDelegateBase<TReturn, TArgs...>;
 
-		using TStaticDelegateInstance = FStaticDelegateInstance<TReturn, TArgs...>;
-
-		template <class TObject>
-		using TRawDelegateInstance = FRawDelegateInstance<false, TObject, TReturn, TArgs...>;
+		using TStaticDelegateBase = FStaticDelegateBase<TReturn, TArgs...>;
 
 		template <class TObject>
-		using TConstRawDelegateInstance = FRawDelegateInstance<true, TObject, TReturn, TArgs...>;
+		using TRawDelegateBase = FRawDelegateBase<false, TObject, TReturn, TArgs...>;
+
+		template <class TObject>
+		using TConstRawDelegateBase = FRawDelegateBase<true, TObject, TReturn, TArgs...>;
 
 		template <class TLambda>
-		using TLambdaDelegateInstance = FLambdaDelegateInstance<TLambda, TReturn, TArgs...>;
+		using TLambdaDelegateBase = FLambdaDelegateBase<TLambda, TReturn, TArgs...>;
 
 		template <class TObject>
-		using TSharedRawDelegateInstance = FSharedRawDelegateInstance<false, TObject, TReturn, TArgs...>;
+		using TSharedRawDelegateBase = FSharedRawDelegateBase<false, TObject, TReturn, TArgs...>;
 
 		template <class TObject>
-		using TConstSharedRawDelegateInstance = FSharedRawDelegateInstance<true, TObject, TReturn, TArgs...>;
+		using TConstSharedRawDelegateBase = FSharedRawDelegateBase<true, TObject, TReturn, TArgs...>;
 
 		///
 
@@ -50,8 +228,7 @@ namespace JE
 
 		//- Variables --------------------
 	private:
-		/** Inlined allocator for storing delegate instances. */
-		FInlineAllocator<JE_DELEGATE_ALLOC_SIZE> Allocator;
+		FDelegateInstance<TReturn, TArgs...> Instance;
 
 		/** Delegates handler. Expects to be unique for each new one. */
 		FDelegateHandle Handle;
@@ -59,21 +236,18 @@ namespace JE
 		//- Lifecycle --------------------
 	public:
 		FDelegate()
-			: Allocator()
-			, Handle(FDelegateHandle::Generate)
+			: Instance(FDelegateInstance<TReturn, TArgs...>())
 		{
 		}
 
 		~FDelegate()
 		{
-			Handle.Reset();
 			Clear();
 		}
 
 		FDelegate(const FDelegate& _delegate) noexcept
 		{
-			Allocator = _delegate.Allocator;
-			Handle = _delegate.Handle;
+			Instance = _delegate.Instance;
 		}
 
 		FDelegate& operator=(const FDelegate& _delegate) noexcept
@@ -83,17 +257,13 @@ namespace JE
 				return *this;
 			}
 
-			Allocator = _delegate.Allocator;
-			Handle = _delegate.Handle;
-
+			Instance = _delegate.Instance;
 			return *this;
 		}
 
 		FDelegate(FDelegate&& _delegate) noexcept
 		{
-			Allocator = std::move(_delegate.Allocator);
-			Handle = _delegate.Handle;
-			_delegate.Handle.Reset();
+			Instance = std::move(_delegate.Instance);
 		}
 
 		FDelegate& operator=(FDelegate&& _delegate) noexcept
@@ -103,134 +273,96 @@ namespace JE
 				return *this;
 			}
 
-			Allocator = std::move(_delegate.Allocator);
-			Handle = _delegate.Handle;
-			_delegate.Handle.Reset();
-
+			Instance = std::move(_delegate.Instance);
 			return *this;
 		}
 
 		bool operator==(const FDelegate& _delegate) noexcept
 		{
 			// TODO: theoretically, shouldn't exist 2 delegates with equal handles, should it?
-			return Handle == _delegate.Handle && Allocator == _delegate.Allocator;
+			return Instance == _delegate.Instance;
 		}
 
 		//- Methods ----------------------
 	public:
-		/** Get delegate handle. */
-		FDelegateHandle GetHandle() const
+		FDelegateHandle GetHandle() const noexcept
 		{
-			return Handle;
+			return Instance.GetHandle();
 		}
 
 		TReturn Execute(TArgs&&... _args)
 		{
-			TDelegateInstance* delegateInstance = Allocator.Cast<TDelegateInstance>();
-			JE_ASSERT(delegateInstance);
-			return delegateInstance->Execute(std::forward<TArgs>(_args)...);
+			return Instance.Execute(std::forward<TArgs>(_args)...);
 		}
 
 		void Clear()
 		{
-			if (IsBound())
-			{
-				TDelegateInstance* const delegateInstance = static_cast<TDelegateInstance* const>(Allocator.GetData());
-				JE_ASSERT(delegateInstance);
-
-				std::destroy_at<TDelegateInstance>(delegateInstance);
-				Allocator.Free();
-			}
+			Instance.template Deinit<TDelegateBase>();
 		}
 
 		inline bool IsBound() const
 		{
-			return !Allocator.IsEmpty();
+			return Instance.IsBound();
 		}
 
-		void BindStatic(TStaticFunction _staticFunctionPtr)
+		inline bool IsBoundTo(void* _object) const
+		{
+			return Instance.GetOwner() == _object;
+		}
+
+		void Bind(TStaticFunction _staticFunction)
 		{
 			Clear();
-
-			Allocator.Allocate(sizeof(TStaticDelegateInstance));
-			TStaticDelegateInstance* delegateInstance = Allocator.Cast<TStaticDelegateInstance>();
-
-			JE_ASSERT(delegateInstance);
-			std::construct_at(delegateInstance, _staticFunctionPtr);
+			Instance.template Init<TStaticDelegateBase>(_staticFunction);
 		}
 
 		template <class TObject>
-		void BindRaw(TObject* _object, TMemberFunction<TObject> _methodPtr)
+		void Bind(TObject* _object, TMemberFunction<TObject> _method)
 		{
 			static_assert(!std::is_const_v<TObject>,
 				"Attempting to bind a delegate with a const object pointer and non-const member function.");
 
 			Clear();
-
-			Allocator.Allocate(sizeof(TRawDelegateInstance<TObject>));
-			TRawDelegateInstance<TObject>* delegateInstance = Allocator.Cast<TRawDelegateInstance<TObject>>();
-
-			JE_ASSERT(delegateInstance);
-			std::construct_at(delegateInstance, _object, _methodPtr);
+			Instance.template Init<TRawDelegateBase<TObject>>(_object, _method);
 		}
 
 		template <class TObject>
-		void BindRaw(const TObject* _object, TConstMemberFunction<TObject> _methodPtr)
+		void Bind(const TObject* _object, TConstMemberFunction<TObject> _method)
 		{
 			Clear();
-
-			Allocator.Allocate(sizeof(TConstRawDelegateInstance<const TObject>));
-			TConstRawDelegateInstance<const TObject>* delegateInstance = Allocator.Cast<TConstRawDelegateInstance<const TObject>>();
-
-			JE_ASSERT(delegateInstance);
-			std::construct_at(delegateInstance, _object, _methodPtr);
+			Instance.template Init<TConstRawDelegateBase<const TObject>>(_object, _method);
 		}
 
 		template <class TLambda>
-		void BindLambda(TLambda&& _lambda)
+		void Bind(TLambda&& _lambda)
 		{
 			Clear();
 
 			using TLambdaType = std::decay_t<TLambda>;
-			Allocator.Allocate(sizeof(TLambdaDelegateInstance<TLambdaType>));
-			TLambdaDelegateInstance<TLambdaType>* delegateInstance = Allocator.Cast<TLambdaDelegateInstance<TLambdaType>>();
-
-			JE_ASSERT(delegateInstance);
-			std::construct_at(delegateInstance, std::forward<TLambdaType>(_lambda));
+			Instance.template Init<TLambdaDelegateBase<TLambdaType>>(std::forward<TLambdaType>(_lambda));
 		}
 
 		template <class TObject>
-		void BindSharedRaw(const std::shared_ptr<TObject>& _object, TMemberFunction<TObject> _method)
+		void Bind(const std::shared_ptr<TObject>& _object, TMemberFunction<TObject> _method)
 		{
 			static_assert(!std::is_const_v<TObject>,
 				"Attempting to bind a delegate with a const object pointer and non-const member function.");
 
 			Clear();
-
-			Allocator.Allocate(sizeof(TSharedRawDelegateInstance<TObject>));
-			TSharedRawDelegateInstance<TObject>* delegateInstance = Allocator.Cast<TSharedRawDelegateInstance<TObject>>();
-
-			JE_ASSERT(delegateInstance);
-			std::construct_at(delegateInstance, _object, _method);
+			Instance.template Init<TSharedRawDelegateBase<TObject>>(_object, _method);
 		}
 
 		template <class TObject>
-		void BindSharedRaw(const std::shared_ptr<const TObject>& _object, TConstMemberFunction<TObject> _method)
+		void Bind(const std::shared_ptr<const TObject>& _object, TConstMemberFunction<TObject> _method)
 		{
 			Clear();
-
-			Allocator.Allocate(sizeof(TConstSharedRawDelegateInstance<const TObject>));
-			TConstSharedRawDelegateInstance<const TObject>* delegateInstance =
-				Allocator.Cast<TConstSharedRawDelegateInstance<const TObject>>();
-
-			JE_ASSERT(delegateInstance);
-			std::construct_at(delegateInstance, _object, _method);
+			Instance.template Init<TConstSharedRawDelegateBase<const TObject>>(_object, _method);
 		}
 
 		static FDelegate CreateStaticDelegate(TStaticFunction _staticFunctionPtr)
 		{
 			FDelegate delegate;
-			delegate.BindStatic(_staticFunctionPtr);
+			delegate.Bind(_staticFunctionPtr);
 			return delegate;
 		}
 
@@ -238,7 +370,7 @@ namespace JE
 		static FDelegate CreateRawDelegate(TObject* _object, TMemberFunction<TObject> _method)
 		{
 			FDelegate delegate;
-			delegate.BindRaw(_object, _method);
+			delegate.Bind(_object, _method);
 			return delegate;
 		}
 
@@ -246,7 +378,7 @@ namespace JE
 		static FDelegate CreateRawDelegate(const TObject* _object, TConstMemberFunction<TObject> _method)
 		{
 			FDelegate delegate;
-			delegate.BindRaw(_object, _method);
+			delegate.Bind(_object, _method);
 			return delegate;
 		}
 
@@ -254,7 +386,7 @@ namespace JE
 		static FDelegate CreateLambdaDelegate(TLambda&& _lambda)
 		{
 			FDelegate delegate;
-			delegate.BindLambda(std::forward<TLambda>(_lambda));
+			delegate.Bind(std::forward<TLambda>(_lambda));
 			return delegate;
 		}
 
@@ -262,7 +394,7 @@ namespace JE
 		static FDelegate CreateSharedRawDelegate(const std::shared_ptr<TObject>& _object, TMemberFunction<TObject> _method)
 		{
 			FDelegate delegate;
-			delegate.BindSharedRaw(_object, _method);
+			delegate.Bind(_object, _method);
 			return delegate;
 		}
 
@@ -270,7 +402,7 @@ namespace JE
 		static FDelegate CreateSharedRawDelegate(const std::shared_ptr<const TObject>& _object, TConstMemberFunction<TObject> _method)
 		{
 			FDelegate delegate;
-			delegate.BindSharedRaw(_object, _method);
+			delegate.Bind(_object, _method);
 			return delegate;
 		}
 	};

@@ -1,30 +1,11 @@
 #pragma once
 
 #include "CoreDefines.h"
+#include "Memory/Memory.h"
 
 namespace JE
 {
 	// TODO: add memory perf scopes
-	namespace Memory
-	{
-		static inline void* Allocate(uint64 _size)
-		{
-			void* pointer = std::malloc(_size);
-			return pointer;
-		}
-
-		static inline void Free(void* _pointer)
-		{
-			std::free(_pointer);
-		}
-
-		static inline void Copy(void* _destPtr, void const* _sourcePtr, uint64 _size)
-		{
-			std::memcpy(_destPtr, _sourcePtr, _size);
-		}
-
-	}; // namespace Memory
-
 	template <uint64 StackSize>
 	class JE_API FInlineAllocator
 	{
@@ -173,6 +154,12 @@ namespace JE
 		TType* Cast()
 		{
 			return static_cast<TType*>(GetData());
+		}
+
+		template <class TType = void>
+		const TType* Cast() const
+		{
+			return static_cast<const TType*>(GetData());
 		}
 
 		inline uint64 GetSize() const
