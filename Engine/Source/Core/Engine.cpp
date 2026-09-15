@@ -36,26 +36,12 @@ bool JE::FEngine::Initialize()
 
 	// TODO: how to start application and when?
 	JE_ASSERT(Application);
-	Application->Initialize();
-
-	if (Application->IsWindowed())
+	if (!Application->Initialize())
 	{
-		FWindowProperties windowProperties{
-			.Title = "Just Engine",
-			.Width = 1280,
-			.Height = 720,
-		};
-
-		Window = std::shared_ptr<IWindow>(IWindow::Create(windowProperties));
-		if (!Window)
-		{
-			ExitCode = EXIT_FAILURE;
-			return false;
-		}
-		Window->SetActive(true);
+		ExitCode = EXIT_FAILURE;
+		return false;
 	}
 
-	bIsRunning = true;
 	return true;
 }
 
@@ -65,6 +51,7 @@ void JE::FEngine::Run()
 	PrevFrameTime = FDateTime::Now() - 1ms;
 	FDateTime curFrameTime = PrevFrameTime;
 
+	bIsRunning = Application && Application->IsRunning();
 	while (bIsRunning)
 	{
 		++FrameCounter;
@@ -73,38 +60,25 @@ void JE::FEngine::Run()
 		DeltaTime = (curFrameTime - PrevFrameTime).GetTotalSeconds();
 		PrevFrameTime = curFrameTime;
 
-		PollEvents();
+		// poll
+		Application->PollEvents();
 		Update(DeltaTime);
 		Render();
-
 		EndFrame();
 
-		if (Window && Window->ShouldClose())
-		{
-			bIsRunning = false;
-		}
+		bIsRunning = Application && Application->IsRunning();
 	}
 }
 
-void JE::FEngine::PollEvents()
+void JE::FEngine::HandleEvent(FEvent& _event)
 {
-	if (Window)
-	{
-		Window->PollEvents();
-
-		// TODO: foreach event?
-		OnEvent();
-		Application->OnEvent();
-	}
+	GetGlobalDelegate(_event.GetType()).Broadcast(_event);
+	JE_LOG(LogEngine, Log, "Engine event: {}", _event.ToString());
 }
 
-void JE::FEngine::OnEvent()
+void JE::FEngine::Update(double _deltaTime)
 {
-}
-
-void JE::FEngine::Update(float _deltaTime)
-{
-	JE_LOG(LogEngine, Log, "Engine update: FrameCounter={}, DeltaTime={:.5f}.", FrameCounter, DeltaTime);
+	// JE_LOG(LogEngine, Log, "Engine update: FrameCounter={}, DeltaTime={:.5f}.", FrameCounter, DeltaTime);
 	Application->OnUpdate(_deltaTime);
 }
 
@@ -118,10 +92,7 @@ void JE::FEngine::Render()
 
 void JE::FEngine::EndFrame()
 {
-	if (Window)
-	{
-		Window->SwapBuffers();
-	}
+	Application->OnEndFrame();
 }
 
 int32 JE::FEngine::Shutdown()
@@ -140,7 +111,8 @@ std::weak_ptr<JE::FApplication> JE::FEngine::GetApplication()
 	return Application;
 }
 
-std::weak_ptr<JE::IWindow> JE::FEngine::GetActiveWindow()
+JE::FEngine::FGlobalEventDelegate& JE::FEngine::GetGlobalDelegate(EEventType _type)
 {
-	return Window;
+	JE_ASSERT(_type != EEventType::None);
+	return GlobalDelegates[_type];
 }

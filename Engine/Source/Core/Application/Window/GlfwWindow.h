@@ -9,6 +9,13 @@ namespace JE
 	{
 		//- Types ------------------------
 		//- Events -----------------------
+	public:
+		virtual void OnClosed(FEvent& _event) override;
+		virtual void OnResized(FEvent& _event) override;
+		virtual void OnMoved(FEvent& _event) override;
+		virtual void OnFocused(FEvent& _event) override;
+		virtual void OnMaximized(FEvent& _event) override;
+		virtual void OnIconified(FEvent& _event) override;
 
 		//- Variables --------------------
 	private:
@@ -24,25 +31,24 @@ namespace JE
 
 		virtual void PollEvents() override;
 		virtual void SwapBuffers() override;
+
+		virtual void SetSizeLimits(int32 _minWidth = 0,
+			int32 _minHeight = 0,
+			int32 _maxWidth = JE_DEFAULTS_WINDOW_ANYSIZE,
+			int32 _maxHeight = JE_DEFAULTS_WINDOW_ANYSIZE) override;
+		virtual void Resize(int32 _width, int32 _height) override;
+		virtual void SetFocus(bool bFocus) override;
+		virtual void Move(int32 _xCoord, int32 _yCoord) override;
+		virtual void Maximize() override;
+		virtual void Iconify() override;
 		virtual void Close() override;
 
 		//- Methods ----------------------
 	public:
-		virtual bool ShouldClose() const override;
-
-		virtual void SetActive(bool _bIsActive) override;
-
-	public:
 		/** Static GLFW initialization. */
 		static bool GlfwInitialize();
 
-		/** Static GLFW Error handler. */
-		static void OnGlfwError(int32 _errorCode, const char* _description);
-
-		/** Static GLFW Resize event handler. */
-		static void OnGlfwResize(GLFWwindow* _window, int32 _width, int32 _height);
-
-		static void OnGlfwWindowClose(GLFWwindow* _window);
+		virtual bool ShouldClose() const override;
 	};
 
 } // namespace JE

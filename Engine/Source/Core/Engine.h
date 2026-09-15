@@ -1,39 +1,39 @@
 #pragma once
 
 #include "Application/Application.h"
+#include "Delegates/DelegateMacros.h"
+#include "Events/Event.h"
 #include "Types/NonCopyable.h"
 #include "Types/Time/DateTime.h"
 
 namespace JE
 {
-	class IWindow;
-
 	class JE_API FEngine : public FNonCopyable
 	{
 		//- Types ------------------------
+
 		//- Events -----------------------
+	protected:
+		JE_DEFINE_MULTICAST_DELEGATE(FGlobalEventDelegate, FEvent&);
 
 		//- Variables --------------------
 	protected:
 		/** TODO: Commandline parser + console manager? */
 		std::string Commandline;
-
 		/** Parsed commandline parameters. */
 		std::vector<std::string> CommandlineParameters;
 
 		/** Client's application. */
 		std::shared_ptr<FApplication> Application;
-
-		// TODO: rework with WindowManager
-		/** Main application window. */
-		std::shared_ptr<IWindow> Window;
+		/** Global delegates. */
+		std::unordered_map<EEventType, FGlobalEventDelegate> GlobalDelegates;
 
 		int32 ExitCode = EXIT_SUCCESS;
 		bool bIsRunning = false;
 
 		/** Frame time. */
 		FDateTime EngineStartTime;
-		float DeltaTime = -1.0f;
+		double DeltaTime = -1.0f;
 		FDateTime PrevFrameTime;
 
 		uint64 FrameCounter = 0;
@@ -44,23 +44,20 @@ namespace JE
 		virtual ~FEngine() override;
 
 		/** Initialize all engine systems. */
-		virtual bool Initialize();
-
+		bool Initialize();
 		/** Run main loop. */
 		void Run();
-
+		/** Global application events handler. Manually binding is required. */
+		void HandleEvent(FEvent& _event);
 		/** Shutdown all engine systems. */
-		virtual int32 Shutdown();
+		int32 Shutdown();
 
 	protected:
-		// TODO:
-		/** Process available events. */
-		virtual void PollEvents();
-		virtual void OnEvent();
-
-		virtual void Update(float _deltaTime);
+		/** Pre-Rendering logic update. */
+		virtual void Update(double _deltaTime);
+		/** Rendering logic handler. */
 		virtual void Render();
-
+		/** Post-Rendering logic completion. */
 		virtual void EndFrame();
 
 		//- Methods ----------------------
@@ -71,15 +68,7 @@ namespace JE
 		/** Get clients application. */
 		std::weak_ptr<FApplication> GetApplication();
 
-		// TODO: Support multiple application windows & move to WindowManager?
-		/** Create new window with specific properties. */
-		// const IWindow* AddWindow(const FWindowProperties& _windowProperties, bool _bSetActive = false);
-
-		/** Remove specific window. */
-		// void RemoveWindow(IWindow* _window);
-
-		/** Get current active window. */
-		std::weak_ptr<IWindow> GetActiveWindow();
+		FGlobalEventDelegate& GetGlobalDelegate(EEventType _type);
 	};
 
 	/** Global Engine instance. */
