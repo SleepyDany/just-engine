@@ -1,7 +1,7 @@
-#include "Engine.h"
+#include "Application/WindowApplication.h"
 #include "EntryPoint.h"
 
-JE::FApplication* JE::CreateApplication(int32 _argCount, char** _argString)
+JE::FApplication* JE::CreateApplication()
 {
-	return new JE::FEngine(_argCount, _argString);
+	return new JE::FWindowApplication();
 }

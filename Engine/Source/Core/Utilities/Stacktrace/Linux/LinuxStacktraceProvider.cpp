@@ -1,6 +1,6 @@
 #ifdef JE_PLATFORM_LINUX
 
-	#include "LinuxStacktrace.h"
+	#include "LinuxStacktraceProvider.h"
 
 	#include "Assertions/Assert.h"
 
@@ -11,8 +11,8 @@
 	#include <cstdio>
 	#include <cstring>
 
-JE::FLinuxStacktraceUtility::FLinuxStacktraceUtility()
-	: IStacktraceUtility()
+JE::FLinuxStacktraceProvider::FLinuxStacktraceProvider()
+	: IStacktraceProvider()
 {
 	// TODO: need to find out how to extract file/line
 	DefaultFormatter = [](const FStacktraceEntry& _entry)
@@ -26,7 +26,7 @@ JE::FLinuxStacktraceUtility::FLinuxStacktraceUtility()
 	};
 }
 
-void JE::FLinuxStacktraceUtility::CollectStacktrace(uint32 _stacktraceDepth, uint32 _skipFirstEntryCount)
+void JE::FLinuxStacktraceProvider::CollectStacktrace(uint32 _stacktraceDepth, uint32 _skipFirstEntryCount)
 {
 	Stacktrace.clear();
 
@@ -49,7 +49,7 @@ void JE::FLinuxStacktraceUtility::CollectStacktrace(uint32 _stacktraceDepth, uin
 	std::free(symbols);
 }
 
-JE::FStacktraceEntry JE::FLinuxStacktraceUtility::ExtractStacktraceEntry(void* _address, const std::any& _symbol, int32 _index) const
+JE::FStacktraceEntry JE::FLinuxStacktraceProvider::ExtractStacktraceEntry(void* _address, const std::any& _symbol, int32 _index) const
 {
 	JE_PRIVATE_ASSERT(_address);
 	JE_PRIVATE_ASSERT(_symbol.has_value());

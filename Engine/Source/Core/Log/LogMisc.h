@@ -2,6 +2,7 @@
 
 #include "CoreDefines.h"
 #include "Types/BaseTypes.h"
+#include "Types/Time/DateTime.h"
 
 #include <chrono>
 #include <functional>
@@ -55,15 +56,13 @@ namespace JE
 		/** Actual verbosity for log category. */
 		ELogVerbosity Verbosity;
 
-		/** Should we break on each log. */
-		bool bDebugBreak = false;
-
 		//- Lifecycle --------------------
 	public:
 		explicit FLogCategory(const ID& _id, ELogVerbosity _defaultVerbosity);
+		~FLogCategory() = default;
+
 		FLogCategory(const FLogCategory&) = default;
 		FLogCategory& operator=(const FLogCategory&) = default;
-		~FLogCategory() = default;
 
 		//- Methods ----------------------
 	public:
@@ -89,7 +88,7 @@ namespace JE
 		std::string_view File;
 		std::string_view Function;
 		uint32 Line;
-		std::chrono::system_clock::time_point TimePoint;
+		FDateTime Time;
 	};
 
 	using TLogFormatter = std::function<std::string(const FLogRecord&)>;

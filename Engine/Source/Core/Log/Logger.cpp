@@ -1,5 +1,6 @@
 #include "Logger.h"
 
+#include "Assertions/Check.h"
 #include "Log/LogMisc.h"
 #include "Log/LoggerImpl.h"
 
@@ -52,11 +53,7 @@ void JE::FLogger::Log(const FLogRecord& _logRecord)
 
 	for (auto& impl : LoggerImpls)
 	{
-		if (!impl)
-		{
-			continue;
-		}
-
+		JE_PRIVATE_ASSERT_F(impl, "Invalid logger implementation.");
 		impl->Log(_logRecord);
 	}
 

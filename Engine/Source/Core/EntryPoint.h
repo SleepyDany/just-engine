@@ -1,23 +1,23 @@
 #pragma once
 
-#include "Application.h"
+#include "Application/Application.h"
+#include "Engine.h"
 
-/** Should be defined on CLIENT side */
-extern JE::FApplication* JE::CreateApplication(int32 _argCount, char** _argString);
+/** Should be defined on CLIENT side. */
+extern JE::FApplication* JE::CreateApplication();
 
 // TODO: Implement platform specific main?
 int main(int argc, char** argv)
 {
-	int32 exitCode = EXIT_FAILURE;
-	JE::FApplication* application = JE::CreateApplication(argc, argv);
+	JE::gEngine = std::make_unique<JE::FEngine>(argc, argv);
+	JE::FApplication* application = JE::CreateApplication();
+	JE::gEngine->SetApplication(application);
 
-	if (application->Initialize())
+	if (JE::gEngine->Initialize())
 	{
-		application->Run();
-		exitCode = application->Shutdown();
+		JE::gEngine->Run();
 	}
 
-	delete application;
-
+	int32 exitCode = JE::gEngine->Shutdown();
 	return exitCode;
 }

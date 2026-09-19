@@ -4,7 +4,6 @@
 #include <Core/Log/LogMisc.h>
 #include <Core/Log/Logger.h>
 
-#include <chrono>
 #include <format>
 
 #define JE_DEFINE_LOG_CATEGORY(CategoryName, Verbosity)                                   \
@@ -32,7 +31,7 @@
 				__FILE__,                                                                                                               \
 				__FUNCTION__,                                                                                                           \
 				__LINE__,                                                                                                               \
-				std::chrono::system_clock::now()};                                                                                      \
+				FDateTime::Now()};                                                                                                      \
 			JE::FLogManager::Get().GetLogger(JE_PRIVATE_GET_LOG_CATEGORY(CategoryName)).Log(logRecord);                                 \
 		}                                                                                                                               \
 	} while (false)

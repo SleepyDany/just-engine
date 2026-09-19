@@ -1,12 +1,14 @@
 #pragma once
 
-#ifdef JE_PLATFORM_WINDOWS
-	#include "Utilities/StacktraceUtilities.h"
+#ifdef JE_PLATFORM_LINUX
+	#include "Utilities/Stacktrace/StacktraceProvider.h"
 
 namespace JE
 {
-	// TODO: link <dbghelp>
-	class JE_API FWindowsStacktraceUtility : public IStacktraceUtility
+	// TODO: requires -rdynamic compile option ???
+	// TODO: need to find out how to extract file/line
+
+	class JE_API FLinuxStacktraceProvider : public IStacktraceProvider
 	{
 		//- Types ------------------------
 		//- Events -----------------------
@@ -14,8 +16,8 @@ namespace JE
 
 		//- Lifecycle --------------------
 	public:
-		FWindowsStacktraceUtility() = default;
-		virtual ~FWindowsStacktraceUtility() override = default;
+		FLinuxStacktraceProvider();
+		virtual ~FLinuxStacktraceProvider() override = default;
 
 		//- Methods ----------------------
 	public:
@@ -26,4 +28,4 @@ namespace JE
 	};
 } // namespace JE
 
-#endif // JE_PLATFORM_WINDOWS
+#endif // JE_PLATFORM_LINUX

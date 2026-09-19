@@ -1,0 +1,52 @@
+name: Build All
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Git branch to build"
+        required: true
+        default: "master"
+        type: string
+      upload_artifacts:
+        description: "Upload build artifacts?"
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  JustEngine-Windows-Debug:
+    uses: ./.github/workflows/build-custom.yml
+    with:
+      branch: ${{inputs.branch}}
+      platform: "windows"
+      target: "JustEngineExe"
+      build_type: "Debug"
+      upload_artifacts: ${{inputs.upload_artifacts}}
+
+  JustEngine-Windows-Release:
+    uses: ./.github/workflows/build-custom.yml
+    with:
+      branch: ${{inputs.branch}}
+      platform: "windows"
+      target: "JustEngineExe"
+      build_type: "Release"
+      upload_artifacts: ${{inputs.upload_artifacts}}
+
+  JustEngine-Linux-Debug:
+    uses: ./.github/workflows/build-custom.yml
+    with:
+      branch: ${{inputs.branch}}
+      platform: "linux"
+      target: "JustEngineExe"
+      build_type: "Debug"
+      upload_artifacts: ${{inputs.upload_artifacts}}
+
+  JustEngine-Linux-Release:
+    uses: ./.github/workflows/build-custom.yml
+    with:
+      branch: ${{inputs.branch}}
+      platform: "linux"
+      target: "JustEngineExe"
+      build_type: "Release"
+      upload_artifacts: ${{inputs.upload_artifacts}}

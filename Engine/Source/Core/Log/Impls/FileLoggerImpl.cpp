@@ -11,7 +11,10 @@ JE::FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const TLogFormatter& _format
 	JE_PRIVATE_ASSERT_F(_filePath.has_filename(), "FFileLoggerImpl doesn't need a filename in path.");
 
 	FilePath = _filePath;
-	PrevFlushTimepoint = std::chrono::steady_clock::now();
+
+	using namespace std::chrono_literals;
+	FlushPeriod = 1s;
+	PrevFlushTime = FDateTime::Now();
 
 	Open();
 }
@@ -70,11 +73,11 @@ void JE::FFileLoggerImpl::Log(const std::string& _message, bool _bForceFlush)
 
 		// TODO: add messages/time/size limits for flush as well?
 		File << _message;
-		auto now = std::chrono::steady_clock::now();
-		if (_bForceFlush || (now - PrevFlushTimepoint) >= FlushPeriod)
+		FDateTime now = FDateTime::Now();
+		if (_bForceFlush || (now - PrevFlushTime) >= FlushPeriod)
 		{
 			File.flush();
-			PrevFlushTimepoint = now;
+			PrevFlushTime = now;
 		}
 	}
 }
@@ -89,7 +92,7 @@ void JE::FFileLoggerImpl::Open()
 		// update file's name
 		const std::string closedFileName = std::format("{}-{:%d.%m.%Y-%H.%M.%OS}{}",
 			FilePath.stem().generic_string(),
-			std::chrono::system_clock::now(),
+			FDateTime::Now(),
 			FilePath.extension().generic_string());
 
 		// rename with overwriting if fullFileName already exists

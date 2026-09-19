@@ -31,6 +31,7 @@ set(JE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(JE_TOOLS_DIR ${JE_ROOT_DIR}/Tools)
 set(JE_SAVED_DIR ${JE_ROOT_DIR}/Saved)
 set(JE_BINARY_DIR ${CMAKE_BINARY_DIR}/Binaries)
+set(JE_THIRDPARTY_DIR ${JE_ROOT_DIR}/ThirdParty)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${JE_BINARY_DIR})
 set(CMAKE_PDB_OUTPUT_DIRECTORY ${JE_BINARY_DIR})
@@ -40,6 +41,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${JE_BINARY_DIR})
 #------------------------------
 # Project setup
 #------------------------------
+
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+set(GLFW_BUILD_WAYLAND ON CACHE BOOL "" FORCE)
+set(GLFW_BUILD_X11 OFF CACHE BOOL "" FORCE)
+add_subdirectory(${JE_THIRDPARTY_DIR}/GLFW)
+set_target_properties(glfw PROPERTIES FOLDER ThirdParty)
 
 include(${JE_TOOLS_DIR}/CMake/cmake_helpers.cmake)
 

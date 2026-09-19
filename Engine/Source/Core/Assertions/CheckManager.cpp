@@ -1,7 +1,7 @@
 #include "CheckManager.h"
 
 #include "Assert.h"
-#include "Utilities/StacktraceUtilities.h"
+#include "Utilities/Stacktrace/StacktraceProvider.h"
 
 JE::FCheckManager& JE::FCheckManager::Get()
 {
@@ -19,11 +19,11 @@ std::string JE::FCheckManager::GetStacktrace(uint32 _skipFirstEntryCount) const
 
 	// TODO: skip or not?
 	// skip first 2 stacktrace entries, because it will be GetStacktrace() + lambda() in CHECK macro
-	IStacktraceUtility* stacktraceUtility = IStacktraceUtility::Get();
-	stacktraceUtility->CollectStacktrace(StacktraceDepth, _skipFirstEntryCount);
+	IStacktraceProvider* stacktraceProvider = IStacktraceProvider::Get();
+	stacktraceProvider->CollectStacktrace(StacktraceDepth, _skipFirstEntryCount);
 
 	std::stringstream outputStacktrace;
-	outputStacktrace << stacktraceUtility->GetFormattedStacktrace();
+	outputStacktrace << stacktraceProvider->GetFormattedStacktrace();
 
 	return outputStacktrace.str();
 }

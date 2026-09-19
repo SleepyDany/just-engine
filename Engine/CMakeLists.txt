@@ -75,7 +75,10 @@ target_include_directories(${PROJECT_NAME}
     ${JE_ENGINE_INCLUDES}
 )
 
-je_setup_pch(${PROJECT_NAME} Source/Core/CorePch.cpp Source/Core/CorePch.h JE_ENGINE_SOURCES)
+target_precompile_headers(${PROJECT_NAME} PRIVATE Source/Core/CorePch.h)
+target_precompile_headers(${PROJECT_NAME}Exe PRIVATE Source/Core/CorePch.h)
+# je_setup_pch(${PROJECT_NAME} Source/Core/CorePch.cpp Source/Core/CorePch.h JE_ENGINE_SOURCES)
+# je_setup_pch(${PROJECT_NAME}Exe Source/Core/CorePch.cpp Source/Core/CorePch.h Source/Core/CoreMain.cpp)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
     $<$<CONFIG:Debug>:_DEBUG>
@@ -94,12 +97,26 @@ elseif (JE_CXX_CLANG)
     target_compile_options(${PROJECT_NAME}Exe PUBLIC -g -std=c++23 -stdlib=libstdc++ -fno-omit-frame-pointer -rdynamic)
 endif()
 
-# for <stacktrace> in Clang
+#------------------------------
+# Libraries linking
+#------------------------------
+
+# Stacktrace helpers
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC dbghelp)
 elseif (LINUX)
     target_link_libraries(${PROJECT_NAME} PUBLIC dl pthread)
 endif()
+
+# GLFW
+target_include_directories(${PROJECT_NAME} PRIVATE ${JE_THIRDPARTY_DIR}/GLFW/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+
+# OpenGL
+find_package(OpenGL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
+
+# JustEngine exe
 target_link_libraries(${PROJECT_NAME}Exe PRIVATE ${PROJECT_NAME})
 
 #------------------------------

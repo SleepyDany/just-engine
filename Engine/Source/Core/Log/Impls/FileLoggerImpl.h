@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Log/LoggerImpl.h"
+
 #include "Types/BaseTypes.h"
+#include "Types/Time/Timespan.h"
 
 #include <filesystem>
 #include <fstream>
@@ -23,16 +25,16 @@ namespace JE
 		std::ofstream File;
 
 		/** Max size of the current file in bytes. */
-		uint64 MaxSize = 1024 * 1024; // 1Mb
+		uint64 MaxSize = 10 * 1024 * 1024; // 10Mb
 
 		/** Max number of files after which logger starts to rewrite older files. */
 		uint32 RotationNumber = 10;
 
 		/** Time period to flush ordinary messages. */
-		std::chrono::duration<double> FlushPeriod = std::chrono::seconds(1);
+		FTimespan FlushPeriod;
 
 		/** Timepoint for previous flush. */
-		std::chrono::time_point<std::chrono::steady_clock> PrevFlushTimepoint{};
+		FDateTime PrevFlushTime;
 
 		//- Lifecycle --------------------
 	public:

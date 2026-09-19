@@ -7,36 +7,38 @@
 
 #ifdef JE_USE_ASSERTS
 
-	#include "CorePch.h"
+	#include "Assertions/CheckManager.h"
 	#include "Log/Log.h"
 
 JE_DEFINE_LOG_CATEGORY(LogAssert, Error);
 
 	/** Standard assertion with formatted logging. */
-	#define JE_ASSERT_F(Expr, Message)                                              \
-		do                                                                          \
-		{                                                                           \
-			if (!(Expr))                                                            \
-			{                                                                       \
-				JE_LOG(LogAssert, Fatal, "Assert '{}' failed: {}", #Expr, Message); \
-				std::abort();                                                       \
-			}                                                                       \
+	#define JE_ASSERT_F(Expr, Message)                                                                                                   \
+		do                                                                                                                               \
+		{                                                                                                                                \
+			if (!(Expr))                                                                                                                 \
+			{                                                                                                                            \
+				JE::FCheckManager& checkManager = JE::FCheckManager::Get();                                                              \
+				JE_LOG(LogAssert, Fatal, "Assertion '{}' failed: {}\nStacktrace:\n{}\n", #Expr, Message, checkManager.GetStacktrace(2)); \
+				std::abort();                                                                                                            \
+			}                                                                                                                            \
 		} while (false)
 
 	/** Standard assertion with logging. */
 	#define JE_ASSERT(Expr) JE_ASSERT_F(Expr, "Abort.")
 
 	/** For INTERNAL usage only. Use JE_ASSERT_F() instead. */
-	#define JE_PRIVATE_ASSERT_F(Expr, Message)                                      \
-		do                                                                          \
-		{                                                                           \
-			if (!(Expr))                                                            \
-			{                                                                       \
-				std::cerr << std::format("Assert '{}' failed: {}", #Expr, Message); \
-				/** TODO: do we need it here? */                                    \
-				JE_PLATFORM_BREAK();                                                \
-				std::abort();                                                       \
-			}                                                                       \
+	#define JE_PRIVATE_ASSERT_F(Expr, Message)                                                                                        \
+		do                                                                                                                            \
+		{                                                                                                                             \
+			if (!(Expr))                                                                                                              \
+			{                                                                                                                         \
+				JE::FCheckManager& checkManager = JE::FCheckManager::Get();                                                           \
+				std::cerr << std::format("Assert '{}' failed: {}\nStacktrace:\n{}\n", #Expr, Message, checkManager.GetStacktrace(2)); \
+				/** TODO: do we need it here? */                                                                                      \
+				JE_PLATFORM_BREAK();                                                                                                  \
+				std::abort();                                                                                                         \
+			}                                                                                                                         \
 		} while (false)
 
 	/** For INTERNAL usage only. Use JE_ASSERT() instead. */

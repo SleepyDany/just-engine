@@ -46,4 +46,5 @@ namespace JE
 
 		void Log(const FLogRecord& _logRecord);
 	};
+
 } // namespace JE

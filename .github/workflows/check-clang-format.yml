@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Checkout branch ${{github.ref}}
         uses: actions/checkout@v5
+        with:
+          submodules: true
 
       - name: Run clang-format style check
         uses: jidicula/clang-format-action@v4.18.0
