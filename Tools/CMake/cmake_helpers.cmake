@@ -48,6 +48,7 @@ macro(je_create_ide_folders SOURCE_FILES)
     endforeach()
 endmacro()
 
+# TODO: Unused for now, replaced with cmakes target_precompile_headers()
 function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
     # extract pch filename
     get_filename_component(PCH_HEADER_NAME ${PCH_HEADER} NAME)
@@ -63,7 +64,7 @@ function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
         set(PCH_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dir/$<CONFIG>/${PCH_HEADER_NAME}.pch)
         
         # create missing directory and create .pch file with separate command
-        add_custom_target(setup_pch_clang
+        add_custom_target(setup_pch_clang_${TARGET}
             COMMAND ${CMAKE_COMMAND}
                 -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dir/$<CONFIG>/"
             COMMAND clang++

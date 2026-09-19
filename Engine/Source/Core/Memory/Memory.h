@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Log/Log.h"
+#include "Types/BaseTypes.h"
+
+#include <cstring>
 
 JE_DEFINE_LOG_CATEGORY(LogMemory, Log);
 
