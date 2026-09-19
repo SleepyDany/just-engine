@@ -13,7 +13,7 @@ jobs:
   JustEngine-Linux-Debug:
     uses: ./.github/workflows/build-custom.yml
     with:
-      branch: ${{github.ref_name}}
+      branch: ${{github.ref}}
       platform: "linux"
       target: "JustEngineExe"
       build_type: "Debug"
@@ -22,7 +22,7 @@ jobs:
   JustEngine-Linux-Release:
     uses: ./.github/workflows/build-custom.yml
     with:
-      branch: ${{github.ref_name}}
+      branch: ${{github.ref}}
       platform: "linux"
       target: "JustEngineExe"
       build_type: "Release"
