@@ -84,9 +84,9 @@ struct std::formatter<JE::FTimespan>
 
 	auto format(const JE::FTimespan& _obj, std::format_context& _ctx) const
 	{
-		return DurationFormatter.format(_obj.GetChronoDuration(), _ctx);
+		return DurationFormatter.format(_obj.GetChronoDuration<std::chrono::system_clock::duration>(), _ctx);
 	}
 
 private:
-	std::formatter<JE::FTimeBase::TTickDuration> DurationFormatter;
+	std::formatter<std::chrono::system_clock::duration> DurationFormatter;
 };
