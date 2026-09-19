@@ -84,12 +84,12 @@ void JE::FWindowApplication::AddWindow(const std::shared_ptr<IWindow>& _window)
 {
 	JE_CHECK_RETURN_CF(_window, , LogApplication, "Couldn't add invalid window to application.");
 
-	gEngine->GetGlobalDelegate(EEventType::WindowClosed).Add(_window, &IWindow::OnClosed);
-	gEngine->GetGlobalDelegate(EEventType::WindowResized).Add(_window, &IWindow::OnResized);
-	gEngine->GetGlobalDelegate(EEventType::WindowFocused).Add(_window, &IWindow::OnFocused);
-	gEngine->GetGlobalDelegate(EEventType::WindowMoved).Add(_window, &IWindow::OnMoved);
-	gEngine->GetGlobalDelegate(EEventType::WindowMaximized).Add(_window, &IWindow::OnMaximized);
-	gEngine->GetGlobalDelegate(EEventType::WindowIconified).Add(_window, &IWindow::OnIconified);
+	gEngine->GetGlobalDelegate(EEventType::WindowClosed).AddSP(_window, &IWindow::OnClosed);
+	gEngine->GetGlobalDelegate(EEventType::WindowResized).AddSP(_window, &IWindow::OnResized);
+	gEngine->GetGlobalDelegate(EEventType::WindowFocused).AddSP(_window, &IWindow::OnFocused);
+	gEngine->GetGlobalDelegate(EEventType::WindowMoved).AddSP(_window, &IWindow::OnMoved);
+	gEngine->GetGlobalDelegate(EEventType::WindowMaximized).AddSP(_window, &IWindow::OnMaximized);
+	gEngine->GetGlobalDelegate(EEventType::WindowIconified).AddSP(_window, &IWindow::OnIconified);
 
 	_window->SetFocus(true);
 	Windows[_window->GetId()] = _window;

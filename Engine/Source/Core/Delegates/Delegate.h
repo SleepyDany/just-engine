@@ -89,7 +89,7 @@ namespace JE
 
 		bool operator==(const FDelegateInstance& _delegate) const noexcept
 		{
-			// TODO: theoretically, shouldn't exist 2 delegates with equal handles, should it?
+			// TODO: theoretically, shouldn't exist 2 delegates with equal handles
 			return Handle == _delegate.Handle && Allocator == _delegate.Allocator;
 		}
 
@@ -310,14 +310,14 @@ namespace JE
 			return Instance.GetOwner() == _object;
 		}
 
-		void Bind(TStaticFunction _staticFunction)
+		void BindStatic(TStaticFunction _staticFunction)
 		{
 			Clear();
 			Instance.template Init<TStaticDelegateBase>(_staticFunction);
 		}
 
 		template <class TObject>
-		void Bind(TObject* _object, TMemberFunction<TObject> _method)
+		void BindRaw(TObject* _object, TMemberFunction<TObject> _method)
 		{
 			static_assert(!std::is_const_v<TObject>,
 				"Attempting to bind a delegate with a const object pointer and non-const member function.");
@@ -327,14 +327,14 @@ namespace JE
 		}
 
 		template <class TObject>
-		void Bind(const TObject* _object, TConstMemberFunction<TObject> _method)
+		void BindRaw(const TObject* _object, TConstMemberFunction<TObject> _method)
 		{
 			Clear();
 			Instance.template Init<TConstRawDelegateBase<const TObject>>(_object, _method);
 		}
 
 		template <class TLambda>
-		void Bind(TLambda&& _lambda)
+		void BindLambda(TLambda&& _lambda)
 		{
 			Clear();
 
@@ -343,7 +343,7 @@ namespace JE
 		}
 
 		template <class TObject>
-		void Bind(const std::shared_ptr<TObject>& _object, TMemberFunction<TObject> _method)
+		void BindSP(const std::shared_ptr<TObject>& _object, TMemberFunction<TObject> _method)
 		{
 			static_assert(!std::is_const_v<TObject>,
 				"Attempting to bind a delegate with a const object pointer and non-const member function.");
@@ -353,7 +353,7 @@ namespace JE
 		}
 
 		template <class TObject>
-		void Bind(const std::shared_ptr<const TObject>& _object, TConstMemberFunction<TObject> _method)
+		void BindSP(const std::shared_ptr<const TObject>& _object, TConstMemberFunction<TObject> _method)
 		{
 			Clear();
 			Instance.template Init<TConstSharedRawDelegateBase<const TObject>>(_object, _method);
@@ -362,7 +362,7 @@ namespace JE
 		static FDelegate CreateStaticDelegate(TStaticFunction _staticFunctionPtr)
 		{
 			FDelegate delegate;
-			delegate.Bind(_staticFunctionPtr);
+			delegate.BindStatic(_staticFunctionPtr);
 			return delegate;
 		}
 
@@ -370,7 +370,7 @@ namespace JE
 		static FDelegate CreateRawDelegate(TObject* _object, TMemberFunction<TObject> _method)
 		{
 			FDelegate delegate;
-			delegate.Bind(_object, _method);
+			delegate.BindRaw(_object, _method);
 			return delegate;
 		}
 
@@ -378,7 +378,7 @@ namespace JE
 		static FDelegate CreateRawDelegate(const TObject* _object, TConstMemberFunction<TObject> _method)
 		{
 			FDelegate delegate;
-			delegate.Bind(_object, _method);
+			delegate.BindRaw(_object, _method);
 			return delegate;
 		}
 
@@ -386,23 +386,23 @@ namespace JE
 		static FDelegate CreateLambdaDelegate(TLambda&& _lambda)
 		{
 			FDelegate delegate;
-			delegate.Bind(std::forward<TLambda>(_lambda));
+			delegate.BindLambda(std::forward<TLambda>(_lambda));
 			return delegate;
 		}
 
 		template <class TObject>
-		static FDelegate CreateSharedRawDelegate(const std::shared_ptr<TObject>& _object, TMemberFunction<TObject> _method)
+		static FDelegate CreateSPDelegate(const std::shared_ptr<TObject>& _object, TMemberFunction<TObject> _method)
 		{
 			FDelegate delegate;
-			delegate.Bind(_object, _method);
+			delegate.BindSP(_object, _method);
 			return delegate;
 		}
 
 		template <class TObject>
-		static FDelegate CreateSharedRawDelegate(const std::shared_ptr<const TObject>& _object, TConstMemberFunction<TObject> _method)
+		static FDelegate CreateSPDelegate(const std::shared_ptr<const TObject>& _object, TConstMemberFunction<TObject> _method)
 		{
 			FDelegate delegate;
-			delegate.Bind(_object, _method);
+			delegate.BindSP(_object, _method);
 			return delegate;
 		}
 	};

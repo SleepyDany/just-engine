@@ -6,7 +6,7 @@
 namespace JE
 {
 	/**
-	 * Implementation of a delegate with multiple bindings.\n
+	 * Multicast delegate with multiple bindings.\n
 	 * The invocation order is not guaranteed.
 	 */
 	template <class... TArgs>
@@ -146,13 +146,13 @@ namespace JE
 			return false;
 		}
 
-		FDelegateHandle Add(TStaticFunction _staticFunctionPtr)
+		FDelegateHandle AddStatic(TStaticFunction _staticFunctionPtr)
 		{
 			return Add(TDelegateInstance::template Create<TStaticDelegateBase>(_staticFunctionPtr));
 		}
 
 		template <class TObject>
-		FDelegateHandle Add(TObject* _object, TMemberFunction<TObject> _method)
+		FDelegateHandle AddRaw(TObject* _object, TMemberFunction<TObject> _method)
 		{
 			static_assert(!std::is_const_v<TObject>,
 				"Attempting to bind a delegate with a const object pointer and non-const member function.");
@@ -161,19 +161,19 @@ namespace JE
 		}
 
 		template <class TObject>
-		FDelegateHandle Add(TObject* _object, TConstMemberFunction<TObject> _method)
+		FDelegateHandle AddRaw(TObject* _object, TConstMemberFunction<TObject> _method)
 		{
 			return Add(TDelegateInstance::template Create<TConstRawDelegateBase<const TObject>>(_object, _method));
 		}
 
 		template <class TLambda>
-		FDelegateHandle Add(TLambda&& _lambda)
+		FDelegateHandle AddLambda(TLambda&& _lambda)
 		{
 			return Add(TDelegateInstance::template Create<TLambdaDelegateBase<TLambda>>(std::forward<TLambda>(_lambda)));
 		}
 
 		template <class TObject>
-		FDelegateHandle Add(const std::shared_ptr<TObject>& _object, TMemberFunction<TObject> _method)
+		FDelegateHandle AddSP(const std::shared_ptr<TObject>& _object, TMemberFunction<TObject> _method)
 		{
 			static_assert(!std::is_const_v<TObject>,
 				"Attempting to bind a delegate with a const object pointer and non-const member function.");
@@ -182,11 +182,15 @@ namespace JE
 		}
 
 		template <class TObject>
-		FDelegateHandle Add(const std::shared_ptr<TObject>& _object, TConstMemberFunction<TObject> _method)
+		FDelegateHandle AddSP(const std::shared_ptr<TObject>& _object, TConstMemberFunction<TObject> _method)
 		{
 			return Add(TDelegateInstance::template Create<TConstSharedRawDelegateBase<const TObject>>(_object, _method));
 		}
 
+		/**
+		 * Remove delegate with specific handle.\n
+		 * Beware, could change the order of the bound callbacks.
+		 */
 		bool Remove(FDelegateHandle& _delegateHandle)
 		{
 			if (_delegateHandle.IsValid())
@@ -208,6 +212,9 @@ namespace JE
 			return false;
 		}
 
+		/**
+		 * Remove all delegates with _object owner.
+		 */
 		bool RemoveAll(void* _object)
 		{
 			bool bRemoved = false;
@@ -243,6 +250,21 @@ namespace JE
 
 			InvocationList.emplace_back(std::move(_delegateInstance));
 			return InvocationList.back().GetHandle();
+		}
+
+		void Shrink()
+		{
+			for (auto delegateIter = InvocationList.begin(); delegateIter != InvocationList.end();)
+			{
+				if (!delegateIter->IsBound())
+				{
+					delegateIter = InvocationList.erase(delegateIter);
+				}
+				else
+				{
+					++delegateIter;
+				}
+			}
 		}
 	};
 
