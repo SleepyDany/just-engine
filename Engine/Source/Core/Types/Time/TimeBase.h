@@ -1,5 +1,8 @@
 #pragma once
 
+#include "CoreDefines.h"
+#include "Types/BaseTypes.h"
+
 #include <chrono>
 
 namespace JE

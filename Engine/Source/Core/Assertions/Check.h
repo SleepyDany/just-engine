@@ -8,8 +8,9 @@
 	#include "CheckManager.h"
 
 	#include "Assertions/Assert.h"
-	#include "CorePch.h"
 	#include "Log/Log.h"
+
+	#include <string_view>
 
 JE_DEFINE_LOG_CATEGORY(LogCheck, Error);
 

@@ -1,5 +1,7 @@
 #include "ConsoleLoggerImpl.h"
 
+#include <iostream>
+
 JE::FConsoleLoggerImpl::FConsoleLoggerImpl(const ID& _id, const TLogFormatter& _logFormatter)
 	: FLoggerImpl(_id, _logFormatter)
 {

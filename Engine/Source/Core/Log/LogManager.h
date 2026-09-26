@@ -4,6 +4,10 @@
 #include "Logger.h"
 #include "LoggerImpl.h"
 
+#include <memory>
+#include <unordered_map>
+#include <vector>
+
 namespace JE
 {
 	// TODO: rework loggers creation by manager

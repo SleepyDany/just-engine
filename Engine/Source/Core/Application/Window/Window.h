@@ -1,5 +1,10 @@
 #pragma once
 
+#include "CoreDefines.h"
+#include "Types/BaseTypes.h"
+
+#include <string>
+
 namespace JE
 {
 	class FEvent;

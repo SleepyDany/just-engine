@@ -1,7 +1,12 @@
 #pragma once
 
+#include "CoreDefines.h"
+#include "Types/BaseTypes.h"
+
 #include <any>
-#include <mutex>
+#include <functional>
+#include <string>
+#include <vector>
 
 namespace JE
 {
@@ -34,8 +39,6 @@ namespace JE
 
 		//- Variables --------------------
 	protected:
-		std::mutex Mutex;
-
 		std::vector<FStacktraceEntry> Stacktrace;
 
 		TStacktraceFormatter DefaultFormatter;

@@ -1,7 +1,6 @@
 #pragma once
 
-#ifdef JE_PLATFORM_WINDOWS
-	#include "Utilities/Stacktrace/StacktraceProvider.h"
+#include "Utilities/Stacktrace/StacktraceProvider.h"
 
 namespace JE
 {
@@ -25,5 +24,3 @@ namespace JE
 		virtual FStacktraceEntry ExtractStacktraceEntry(void* _address, const std::any& _symbol, int32 _index) const override;
 	};
 } // namespace JE
-
-#endif // JE_PLATFORM_WINDOWS

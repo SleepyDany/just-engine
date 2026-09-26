@@ -3,6 +3,8 @@
 #include "Assertions/Assert.h"
 #include "Log/LogMacros.h"
 
+#include <map>
+
 JE::FFileLoggerImpl::FFileLoggerImpl(const ID& _id, const TLogFormatter& _formatter, const std::filesystem::path& _filePath)
 	: Super(_id, _formatter)
 	, FilePath(_filePath)

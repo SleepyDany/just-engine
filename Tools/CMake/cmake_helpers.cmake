@@ -48,51 +48,51 @@ macro(je_create_ide_folders SOURCE_FILES)
     endforeach()
 endmacro()
 
-# TODO: Unused for now, replaced with cmakes target_precompile_headers()
-function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
-    # extract pch filename
-    get_filename_component(PCH_HEADER_NAME ${PCH_HEADER} NAME)
+# Deprecated. Replaced with cmakes target_precompile_headers()
+# function(je_setup_pch TARGET PCH_SOURCE PCH_HEADER SOURCE_FILES)
+#     # extract pch filename
+#     get_filename_component(PCH_HEADER_NAME ${PCH_HEADER} NAME)
 
-    # create by /Yc .pch file from PCH_SOURCE
-    target_sources(${TARGET} PRIVATE ${PCH_HEADER} ${PCH_SOURCE})
+#     # create by /Yc .pch file from PCH_SOURCE
+#     target_sources(${TARGET} PRIVATE ${PCH_HEADER} ${PCH_SOURCE})
 
-    if (JE_CXX_MSVC)
-        set_source_files_properties(${PCH_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc${PCH_HEADER_NAME}")
-    elseif (JE_CXX_CLANG)
-        set(PCH_HEADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${PCH_HEADER})
-        # TODO: Target.dir/ is default directory for build .obj/.o files...
-        set(PCH_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dir/$<CONFIG>/${PCH_HEADER_NAME}.pch)
+#     if (JE_CXX_MSVC)
+#         set_source_files_properties(${PCH_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc${PCH_HEADER_NAME}")
+#     elseif (JE_CXX_CLANG)
+#         set(PCH_HEADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${PCH_HEADER})
+#         # TODO: Target.dir/ is default directory for build .obj/.o files...
+#         set(PCH_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dir/$<CONFIG>/${PCH_HEADER_NAME}.pch)
         
-        # create missing directory and create .pch file with separate command
-        add_custom_target(setup_pch_clang_${TARGET}
-            COMMAND ${CMAKE_COMMAND}
-                -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dir/$<CONFIG>/"
-            COMMAND clang++
-                ${CMAKE_CXX_FLAGS}
-                -std=c++${CMAKE_CXX_STANDARD}
-                -x c++-header ${PCH_HEADER_PATH}
-                -o ${PCH_OUTPUT_PATH}
-        )
+#         # create missing directory and create .pch file with separate command
+#         add_custom_target(setup_pch_clang_${TARGET}
+#             COMMAND ${CMAKE_COMMAND}
+#                 -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dir/$<CONFIG>/"
+#             COMMAND clang++
+#                 ${CMAKE_CXX_FLAGS}
+#                 -std=c++${CMAKE_CXX_STANDARD}
+#                 -x c++-header ${PCH_HEADER_PATH}
+#                 -o ${PCH_OUTPUT_PATH}
+#         )
 
-        add_dependencies(${TARGET} setup_pch_clang)
-    endif()
+#         add_dependencies(${TARGET} setup_pch_clang)
+#     endif()
 
-    # mark all other .cpp (except PCH_SOURCE) to use .pch file
-    foreach(FILE ${SOURCE_FILES})
-        if (${FILE} MATCHES "\\.cpp$" AND NOT ${FILE} STREQUAL ${PCH_SOURCE})
-            if (MSVC)
-                set_source_files_properties(${FILE} PROPERTIES COMPILE_FLAGS "/Yu${PCH_HEADER_NAME}")
-            endif()
-        endif()
-    endforeach()
+#     # mark all other .cpp (except PCH_SOURCE) to use .pch file
+#     foreach(FILE ${SOURCE_FILES})
+#         if (${FILE} MATCHES "\\.cpp$" AND NOT ${FILE} STREQUAL ${PCH_SOURCE})
+#             if (MSVC)
+#                 set_source_files_properties(${FILE} PROPERTIES COMPILE_FLAGS "/Yu${PCH_HEADER_NAME}")
+#             endif()
+#         endif()
+#     endforeach()
 
-    # add PCH_HEADER to TARGET includes
-    if (JE_CXX_MSVC)
-        target_compile_options(${TARGET} PRIVATE "/FI${PCH_HEADER_NAME}")
-    elseif (JE_CXX_CLANG)
-        target_compile_options(${TARGET} PRIVATE -include ${CMAKE_CURRENT_SOURCE_DIR}/${PCH_HEADER})
-    endif()
-endfunction()
+#     # add PCH_HEADER to TARGET includes
+#     if (JE_CXX_MSVC)
+#         target_compile_options(${TARGET} PRIVATE "/FI${PCH_HEADER_NAME}")
+#     elseif (JE_CXX_CLANG)
+#         target_compile_options(${TARGET} PRIVATE -include ${CMAKE_CURRENT_SOURCE_DIR}/${PCH_HEADER})
+#     endif()
+# endfunction()
 
 # TODO:
 function(je_setup_thirdparty TARGET LIB_PATH INCLUDE_DIR)

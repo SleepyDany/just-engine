@@ -1,8 +1,12 @@
 #pragma once
 
-#include "CorePch.h"
+#include "CoreDefines.h"
 #include "InputEvents.h"
+#include "Types/BaseTypes.h"
 #include "WindowEvents.h"
+
+#include <string>
+#include <variant>
 
 namespace JE
 {

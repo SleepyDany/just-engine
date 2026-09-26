@@ -10,6 +10,8 @@
 	#include "Assertions/CheckManager.h"
 	#include "Log/Log.h"
 
+	#include <iostream>
+
 JE_DEFINE_LOG_CATEGORY(LogAssert, Error);
 
 	/** Standard assertion with formatted logging. */
