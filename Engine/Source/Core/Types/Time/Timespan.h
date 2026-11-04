@@ -16,8 +16,6 @@ namespace JE
 		//- Lifecycle --------------------
 	public:
 		FTimespan() = default;
-		~FTimespan() = default;
-
 		explicit FTimespan(int64 _ticks);
 
 		template <class TRep, class TPeriod>
@@ -25,6 +23,8 @@ namespace JE
 		{
 			Ticks = std::chrono::duration_cast<FTimeBase::TTickDuration>(_duration).count();
 		}
+
+		virtual ~FTimespan() override = default;
 
 		JE_API friend std::strong_ordering operator<=>(const FTimespan& _lTimespan, const FTimespan& _rTimespan);
 		JE_API friend bool operator==(const FTimespan& _lTimespan, const FTimespan& _rTimespan);
@@ -60,13 +60,13 @@ namespace JE
 		}
 
 		template <TArithmetic TValue>
-		JE_API friend FTimespan operator*(FTimespan _timespan, TValue _value)
+		friend FTimespan operator*(FTimespan _timespan, TValue _value)
 		{
 			return _timespan *= _value;
 		}
 
 		template <TArithmetic TValue>
-		JE_API friend FTimespan operator/(FTimespan _timespan, TValue _value)
+		friend FTimespan operator/(FTimespan _timespan, TValue _value)
 		{
 			return _timespan /= _value;
 		}

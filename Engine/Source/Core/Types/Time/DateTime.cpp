@@ -29,9 +29,9 @@ bool JE::FDateTime::IsZoned() const
 
 JE::FDateTime JE::FDateTime::Now()
 {
-	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-	std::chrono::zoned_time zonedTime(std::chrono::current_zone(), now);
-	std::chrono::system_clock::duration zonedDuration = zonedTime.get_local_time().time_since_epoch();
+	const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	const std::chrono::zoned_time zonedTime(std::chrono::current_zone(), now);
+	const std::chrono::system_clock::duration zonedDuration = zonedTime.get_local_time().time_since_epoch();
 
 	return FDateTime(std::chrono::duration_cast<FTimeBase::TTickDuration>(zonedDuration).count(), true);
 }
@@ -56,6 +56,9 @@ JE::FDateTime& JE::FDateTime::operator+=(const FTimespan& _timespan)
 
 JE::FTimespan JE::operator-(const FDateTime& _lDateTime, const FDateTime& _rDateTime)
 {
+	JE_CHECK_CF(_lDateTime.IsZoned() == _rDateTime.IsZoned(),
+		LogEngine,
+		"Undefined behaviour: Trying to operate with zoned and non-zoned time.");
 	return FTimespan(_lDateTime.GetTicks() - _rDateTime.GetTicks());
 }
 
