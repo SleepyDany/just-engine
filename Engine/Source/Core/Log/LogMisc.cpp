@@ -1,5 +1,8 @@
 #include "LogMisc.h"
 
+#include "Assertions/Assert.h"
+#include "LogManager.h"
+
 std::string JE::ToString(ELogVerbosity Verbosity)
 {
 	switch (Verbosity)
@@ -23,16 +26,17 @@ std::string JE::ToString(ELogVerbosity Verbosity)
 	return "";
 }
 
-JE::FLogCategory::FLogCategory(const ID& _id, ELogVerbosity _defaultVerbosity)
-	: Id(_id)
+JE::FLogCategory::FLogCategory(const std::string& _name, ELogVerbosity _defaultVerbosity) noexcept
+	: Name(_name)
 	, DefaultVerbosity(_defaultVerbosity)
 	, Verbosity(_defaultVerbosity)
 {
+	JE_PRIVATE_ASSERT_F(IsValid(), "Log category is invalid.");
 }
 
-const JE::FLogCategory::ID& JE::FLogCategory::GetId() const
+const std::string& JE::FLogCategory::GetName() const
 {
-	return Id;
+	return Name;
 }
 
 JE::ELogVerbosity JE::FLogCategory::GetDefaultVerbosity() const
@@ -61,15 +65,15 @@ void JE::FLogCategory::SetVerbosity(ELogVerbosity _newVerbosity)
 
 bool JE::FLogCategory::IsValid() const
 {
-	return !Id.empty();
+	return !Name.empty();
 }
 
 bool JE::FLogCategory::operator==(const FLogCategory& _logCategory) const
 {
-	return Id == _logCategory.Id;
+	return Name == _logCategory.Name;
 }
 
 bool JE::FLogCategory::operator!=(const FLogCategory& _logCategory) const
 {
-	return Id != _logCategory.Id;
+	return Name != _logCategory.Name;
 }

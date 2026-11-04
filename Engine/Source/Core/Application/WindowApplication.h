@@ -21,8 +21,8 @@ namespace JE
 
 		//- Lifecycle --------------------
 	public:
-		FWindowApplication();
-		virtual ~FWindowApplication() override;
+		FWindowApplication() = default;
+		virtual ~FWindowApplication() override = default;
 
 	protected:
 		virtual bool Initialize() override;

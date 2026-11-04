@@ -3,48 +3,46 @@
 #include "CoreDefines.h"
 #include "Log/LogMisc.h"
 
-#include <memory>
+#include <set>
 
 namespace JE
 {
-	class FLoggerImpl;
-
-	class JE_API FLogger // TODO: final : private FNonCopyable
+	class JE_API FLogger
 	{
-		friend class FLogManager;
-
 		//- Variables --------------------
-	private:
-		FLogCategory Category;
+	protected:
+		/** Unique identifier for logger. */
+		std::string Name;
 
-		/** Formatter for current logger. Will be overwritten with implementation's formatters if exist. */
-		TLogFormatter Formatter = nullptr;
+		TLogFormatter Formatter;
 
-		/** Different logger implementations. */
-		std::vector<std::shared_ptr<FLoggerImpl>> LoggerImpls;
+		/**
+		 * Filter of the categories logger is allowed to handle.
+		 * Empty filter means 'all' categories could be handled.
+		 */
+		std::set<std::string> CategoryFilter;
 
 		//- Lifecycle --------------------
-		// TODO: Rework NonCopyable objects creation!
 	public:
-		FLogger(const FLogCategory& _logCategory,
-			const TLogFormatter& _formatter = nullptr,
-			const std::vector<std::shared_ptr<FLoggerImpl>>& _loggerImpls = {});
+		FLogger(const std::string& _id, TLogFormatter _formatter);
+		virtual ~FLogger() = default;
+
+		FLogger(const FLogger&) = delete;
+		FLogger& operator=(const FLogger&) = delete;
+		FLogger(FLogger&&) = delete;
+		FLogger& operator=(FLogger&&) = delete;
 
 		//- Methods ----------------------
 	public:
-		void RegisterImpl(const std::shared_ptr<FLoggerImpl>& _logImpl);
-		void UnregisterImpl(const std::shared_ptr<FLoggerImpl>& _logImpl);
-
-		ELogVerbosity GetVerbosity() const;
-		void SetVerbosity(ELogVerbosity _verbosity);
-
-		FLogCategory& GetCategory();
-		const FLogCategory& GetCategory() const;
-
+		const std::string& GetName() const;
 		const TLogFormatter& GetFormatter() const;
-		void SetFormatter(const TLogFormatter& _formatter);
 
-		void Log(const FLogRecord& _logRecord);
+		bool IsSupported(const FLogCategory& _category) const;
+
+		virtual void Write(const FLogRecord& _logRecord);
+
+	protected:
+		virtual void Write(std::string_view _message, bool _bForceFlush = false) = 0;
 	};
 
 } // namespace JE

@@ -4,8 +4,6 @@
 #include "Log/Log.h"
 #include "Types/BaseTypes.h"
 
-JE_DEFINE_LOG_CATEGORY(LogApplication, Log);
-
 namespace JE
 {
 	class FEvent;

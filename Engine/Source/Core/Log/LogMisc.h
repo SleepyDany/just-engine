@@ -13,7 +13,7 @@ namespace JE
 {
 	// TODO: Add colors
 
-	enum ELogVerbosity : uint8
+	enum JE_API ELogVerbosity : uint8
 	{
 		/** Ignore logging. */
 		None = 0,
@@ -41,14 +41,10 @@ namespace JE
 
 	struct JE_API FLogCategory
 	{
-		//- Types ------------------------
-	public:
-		using ID = std::string;
-
 		//- Variables --------------------
 	protected:
 		/** Unique identifier for log category. */
-		ID Id;
+		std::string Name;
 
 		/** Default verbosity for log category. */
 		ELogVerbosity DefaultVerbosity;
@@ -58,7 +54,7 @@ namespace JE
 
 		//- Lifecycle --------------------
 	public:
-		explicit FLogCategory(const ID& _id, ELogVerbosity _defaultVerbosity);
+		FLogCategory(const std::string& _name, ELogVerbosity _defaultVerbosity = ELogVerbosity::None) noexcept;
 		~FLogCategory() = default;
 
 		FLogCategory(const FLogCategory&) = default;
@@ -66,11 +62,12 @@ namespace JE
 
 		//- Methods ----------------------
 	public:
-		const ID& GetId() const;
+		const std::string& GetName() const;
 
 		ELogVerbosity GetDefaultVerbosity() const;
-		void ResetVerbosity();
 
+		/** Reset current verbosity to default. */
+		void ResetVerbosity();
 		ELogVerbosity GetVerbosity() const;
 		void SetVerbosity(ELogVerbosity _newVerbosity);
 
@@ -80,17 +77,17 @@ namespace JE
 		bool operator!=(const FLogCategory& _logCategory) const;
 	};
 
+	using TLogFormatter = std::function<std::string(const struct FLogRecord&)>;
+
 	struct JE_API FLogRecord
 	{
-		const FLogCategory& LogCategory;
-		ELogVerbosity Verbosity;
+		FLogCategory* Category;
 		std::string Message;
 		std::string_view File;
 		std::string_view Function;
-		uint32 Line;
 		FDateTime Time;
+		uint32 Line;
+		ELogVerbosity Verbosity;
 	};
-
-	using TLogFormatter = std::function<std::string(const FLogRecord&)>;
 
 } // namespace JE

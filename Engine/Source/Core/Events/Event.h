@@ -76,7 +76,7 @@ namespace JE
 	std::string ToString(const std::monostate& _obj);
 
 	// clang-format off
-	using JE_API FEventData = std::variant<std::monostate,
+	using FEventData = std::variant<std::monostate,
 		// Window events
 		FWindowClosedEventData,
 		FWindowResizedEventData,

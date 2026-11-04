@@ -1,13 +1,22 @@
 #include "Engine.h"
 
-#include "Application/Window/Window.h"
+// #include "Application/Window/Window.h"
 #include "Assertions/Assert.h"
 #include "Types/Time/Timespan.h"
 
 #include <GLFW/glfw3.h>
 
 /** Global Engine instance definition. */
-std::unique_ptr<JE::FEngine> JE::gEngine = nullptr;
+namespace JE
+{
+	std::unique_ptr<JE::FEngine> gEngine = nullptr;
+
+	FEngine& GetEngine()
+	{
+		JE_ASSERT_F(gEngine, "Invalid global engine instance.");
+		return *gEngine;
+	}
+} // namespace JE
 
 JE::FEngine::FEngine(int32 _argCount, char** _argString)
 {
@@ -33,6 +42,7 @@ JE::FEngine::~FEngine()
 bool JE::FEngine::Initialize()
 {
 	EngineStartTime = FDateTime::Now();
+	FLogManager::Get().Initialize();
 
 	// TODO: how to start application and when?
 	JE_ASSERT(Application);
@@ -73,18 +83,18 @@ void JE::FEngine::Run()
 void JE::FEngine::HandleEvent(FEvent& _event)
 {
 	GetGlobalDelegate(_event.GetType()).Broadcast(_event);
-	JE_LOG(LogEngine, Log, "Engine event: {}", _event.ToString());
+	// JE_LOG(LogEngine, Log, "Engine event: {}", _event.ToString());
 }
 
 void JE::FEngine::Update(double _deltaTime)
 {
-	// JE_LOG(LogEngine, Log, "Engine update: FrameCounter={}, DeltaTime={:.5f}.", FrameCounter, DeltaTime);
+	JE_LOG(LogEngine, Log, "Engine update: FrameCounter={}, DeltaTime={:.5f}s / FPS={}.", FrameCounter, DeltaTime, 1.0 / DeltaTime);
 	Application->OnUpdate(_deltaTime);
 }
 
 void JE::FEngine::Render()
 {
-	glClearColor(1.0f, 0.5f, 0.3f, 1.0f);
+	glClearColor(1.f, 0.5f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	Application->OnRender();
@@ -98,6 +108,8 @@ void JE::FEngine::EndFrame()
 int32 JE::FEngine::Shutdown()
 {
 	Application->Shutdown();
+	FLogManager::Get().Shutdown();
+
 	return ExitCode;
 }
 

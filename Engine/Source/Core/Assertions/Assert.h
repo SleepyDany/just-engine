@@ -1,18 +1,15 @@
 #pragma once
 
-// TODO: how to define JE_USE_ASSERTS? Debug only?
-#if JE_DEBUG && !defined(JE_USE_ASSERTS)
-	#define JE_USE_ASSERTS
-#endif
+#include "CoreDefines.h"
 
 #ifdef JE_USE_ASSERTS
 
 	#include "Assertions/CheckManager.h"
 	#include "Log/Log.h"
 
+	#include <cstdlib>
+	#include <format>
 	#include <iostream>
-
-JE_DEFINE_LOG_CATEGORY(LogAssert, Error);
 
 	/** Standard assertion with formatted logging. */
 	#define JE_ASSERT_F(Expr, Message)                                                                                                   \

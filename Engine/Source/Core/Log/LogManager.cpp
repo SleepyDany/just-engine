@@ -1,10 +1,9 @@
 #include "LogManager.h"
 
 #include "Assertions/Assert.h"
-#include "Impls/ConsoleLoggerImpl.h"
-#include "Impls/FileLoggerImpl.h"
+#include "Loggers/FileLogger.h"
+#include "Loggers/StdoutLogger.h"
 
-#include <cassert>
 #include <filesystem>
 #include <format>
 
@@ -13,83 +12,138 @@ JE::FLogManager::FLogManager()
 	DefaultFormatter = [](const FLogRecord& _logRecord)
 	{
 		// TODO: add colors for diff verbosities
-		// TODO: fix time shift (local time)
 		return std::format("[{:%d.%m.%Y %H:%M:%S}]   {:<7}   {:<20}   {}   [{}({}): {}]\n",
 			_logRecord.Time,
 			JE::ToString(_logRecord.Verbosity),
-			_logRecord.LogCategory.GetId(),
+			_logRecord.Category->GetName(),
 			_logRecord.Message,
 			_logRecord.File,
 			_logRecord.Line,
 			_logRecord.Function);
 	};
 
-	FConsoleLoggerImpl* consoleLoggerImpl = new FConsoleLoggerImpl("DefaultConsoleLogger", DefaultFormatter);
-	std::shared_ptr<FLoggerImpl> newLoggerImpl = RegisterLoggerImpl(consoleLoggerImpl);
-	DefaultLoggerImpls.emplace_back(newLoggerImpl);
-
-	// TODO: setup logs path from settings
-	FFileLoggerImpl* fileLoggerImpl =
-		new FFileLoggerImpl("DefaultFileLogger", DefaultFormatter, std::filesystem::current_path() / "../../Saved/Logs/JustEngine.log");
-	newLoggerImpl = RegisterLoggerImpl(fileLoggerImpl);
-	DefaultLoggerImpls.emplace_back(newLoggerImpl);
+	bStop = false;
 }
 
 JE::FLogManager::~FLogManager()
 {
-	Loggers.clear();
-	DefaultLoggerImpls.clear();
+}
 
-	for (auto& [implId, loggerImpl] : LoggerImpls)
+void JE::FLogManager::Initialize()
+{
+	// TODO: setup logs path from settings
+	AddLogger(std::make_shared<FStdoutLogger>("DefaultStdoutLogger", DefaultFormatter));
+	AddLogger(std::make_shared<FFileLogger>("DefaultFileLogger",
+		DefaultFormatter,
+		std::filesystem::current_path() / "../../Saved/Logs/JustEngine.log"));
+
+	// TODO: setup flush period from settings and support immediate logging?
+	FlushPeriod = std::chrono::milliseconds(100);
+	LogThread = std::thread(&FLogManager::ProcessRecords, this);
+}
+
+void JE::FLogManager::Shutdown()
+{
+	bStop = true;
+	QueueCV.notify_all();
+
+	if (LogThread.joinable())
 	{
-		// TODO: Is it possible to be used not only by Loggers?
-		JE_PRIVATE_ASSERT_F(loggerImpl.use_count() == 1,
-			std::format("Current logger implementation {} has multiple users.", loggerImpl->GetId()));
+		LogThread.join();
 	}
-	LoggerImpls.clear();
+
+	for (const auto& logger : Loggers)
+	{
+		JE_PRIVATE_ASSERT_F(logger.use_count() == 1, std::format("Current logger '{}' has multiple users.", logger->GetName()));
+	}
+	Loggers.clear();
 }
 
 JE::FLogManager& JE::FLogManager::Get()
 {
-	static JE::FLogManager logManager;
+	static FLogManager logManager;
 	return logManager;
 }
 
-JE::FLogger& JE::FLogManager::GetLogger(const FLogCategory& _logCategory)
+JE::TLogFormatter JE::FLogManager::GetDefaultFormatter() const
 {
-	const auto loggerIter = Loggers.find(_logCategory.GetId());
-	if (loggerIter != Loggers.end())
-	{
-		return loggerIter->second;
-	}
-
-	JE_PRIVATE_ASSERT_F(_logCategory.IsValid(), "Invalid log category.");
-
-	Loggers.try_emplace(_logCategory.GetId(), _logCategory, DefaultFormatter, DefaultLoggerImpls);
-
-	return Loggers.at(_logCategory.GetId());
+	return DefaultFormatter;
 }
 
-std::shared_ptr<JE::FLoggerImpl> JE::FLogManager::GetLoggerImpl(const FLoggerImpl::ID& _implId) const
+void JE::FLogManager::Log(const FLogRecord& _logRecord)
 {
-	const auto loggerImplIter = LoggerImpls.find(_implId);
-	return loggerImplIter != LoggerImpls.end() ? loggerImplIter->second : nullptr;
+	// TODO: probably should batch multiple records if possible
+	std::scoped_lock<std::mutex> lock(QueueMutex);
+	RecordsQueue.push(_logRecord);
+
+	// QueueCV.notify_one();
 }
 
-std::shared_ptr<JE::FLoggerImpl> JE::FLogManager::RegisterLoggerImpl(FLoggerImpl* _loggerImpl)
+void JE::FLogManager::Flush()
 {
-	if (!_loggerImpl)
+	QueueCV.notify_one();
+}
+
+void JE::FLogManager::AddLogger(const std::shared_ptr<FLogger>& _logger)
+{
+	if (_logger)
 	{
-		return nullptr;
+		Loggers.emplace(_logger);
+	}
+}
+
+bool JE::FLogManager::RemoveLogger(const std::shared_ptr<FLogger>& _logger)
+{
+	if (_logger)
+	{
+		return Loggers.erase(_logger) > 0;
 	}
 
-	if (const auto loggerImpl = GetLoggerImpl(_loggerImpl->GetId()))
-	{
-		// TODO (?): JE_PRIVATE_ASSERT(loggerImpl.get() == _loggerImpl,
-		// 	std::format("Logger implementation {} already exists during registration.", _loggerImpl->GetId()));
-		return loggerImpl;
-	}
+	return false;
+}
 
-	LoggerImpls.emplace(_loggerImpl->GetId(), std::shared_ptr<FLoggerImpl>(_loggerImpl));
-	return LoggerImpls[_loggerImpl->GetId()];
+std::shared_ptr<JE::FLogger> JE::FLogManager::GetLogger(const std::string& _name)
+{
+	const auto loggerIter = std::ranges::find_if(Loggers,
+		[&_name](const std::shared_ptr<FLogger>& _logger)
+		{
+			return _logger && _logger->GetName() == _name;
+		});
+	return loggerIter == Loggers.end() ? nullptr : *loggerIter;
+}
+
+void JE::FLogManager::ProcessRecords()
+{
+	while (!bStop)
+	{
+		std::unique_lock<std::mutex> lock(QueueMutex);
+		QueueCV.wait_for(lock,
+			FlushPeriod.GetChronoDuration(),
+			[&]()
+			{
+				return bStop || !RecordsQueue.empty();
+			});
+
+		if (bStop && RecordsQueue.empty())
+		{
+			return;
+		}
+
+		std::queue<FLogRecord> localRecords;
+		localRecords.swap(RecordsQueue);
+		lock.unlock();
+
+		while (!localRecords.empty())
+		{
+			const FLogRecord& logRecord = localRecords.front();
+			for (const auto& logger : Loggers)
+			{
+				if (logger && logger->IsSupported(*logRecord.Category))
+				{
+					logger->Write(logRecord);
+				}
+			}
+			localRecords.pop();
+		}
+	}
 }

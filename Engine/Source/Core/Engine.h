@@ -6,12 +6,21 @@
 #include "Types/NonCopyable.h"
 #include "Types/Time/DateTime.h"
 
+#include <memory>
+
 namespace JE
 {
+	/**
+	 * Global Engine instance.
+	 * TODO: Be aware of exporting to dll unique_ptr!
+	 */
+	class FEngine;
+	JE_API extern std::unique_ptr<JE::FEngine> gEngine;
+
+	JE_API FEngine& GetEngine();
+
 	class JE_API FEngine : public FNonCopyable
 	{
-		//- Types ------------------------
-
 		//- Events -----------------------
 	protected:
 		JE_DEFINE_MULTICAST_DELEGATE(FGlobalEventDelegate, FEvent&);
@@ -28,15 +37,14 @@ namespace JE
 		/** Global delegates. */
 		std::unordered_map<EEventType, FGlobalEventDelegate> GlobalDelegates;
 
-		int32 ExitCode = EXIT_SUCCESS;
-		bool bIsRunning = false;
-
 		/** Frame time. */
 		FDateTime EngineStartTime;
 		double DeltaTime = -1.0f;
 		FDateTime PrevFrameTime;
 
 		uint64 FrameCounter = 0;
+		int32 ExitCode = EXIT_SUCCESS;
+		bool bIsRunning = false;
 
 		//- Lifecycle --------------------
 	public:
@@ -70,8 +78,5 @@ namespace JE
 
 		FGlobalEventDelegate& GetGlobalDelegate(EEventType _type);
 	};
-
-	/** Global Engine instance. */
-	extern std::unique_ptr<FEngine> gEngine;
 
 } // namespace JE
