@@ -1,5 +1,11 @@
 #pragma once
 
+#include <format>
+
+#define JE_DEFINE_DEFAULT_TYPE_FORMATTER(Type) JE_PRIVATE_TYPE_FORMATTER_IMPL(Type, _obj.ToString())
+
+#define JE_DEFINE_CUSTOM_TYPE_FORMATTER(Type, CustomFormatterImpl) JE_PRIVATE_TYPE_FORMATTER_IMPL(Type, CustomFormatterImpl(_obj))
+
 #define JE_PRIVATE_TYPE_FORMATTER_IMPL(Type, FormatterImpl)                 \
 	template <>                                                             \
 	struct std::formatter<Type>                                             \
@@ -21,7 +27,3 @@
 			return std::ranges::copy(std::move(out).str(), _ctx.out()).out; \
 		}                                                                   \
 	};
-
-#define JE_DEFINE_DEFAULT_TYPE_FORMATTER(Type) JE_PRIVATE_TYPE_FORMATTER_IMPL(Type, _obj.ToString())
-
-#define JE_DEFINE_CUSTOM_TYPE_FORMATTER(Type, CustomFormatterImpl) JE_PRIVATE_TYPE_FORMATTER_IMPL(Type, CustomFormatterImpl(_obj))

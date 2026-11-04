@@ -9,9 +9,6 @@ namespace JE
 	/** Class representing specific time point. */
 	class JE_API FDateTime : public FTimeBase
 	{
-		//- Types ------------------------
-		//- Events -----------------------
-
 		//- Variables --------------------
 	protected:
 		/** Whether system's time zone is used or not. */
@@ -20,16 +17,31 @@ namespace JE
 		//- Lifecycle --------------------
 	public:
 		FDateTime() = default;
-		~FDateTime() = default;
 
+		/** WARNING: _ticksSinceEpoch have to correspond with bZonedTime option. */
 		explicit FDateTime(int64 _ticksSinceEpoch, bool _bZonedTime = false);
 
+		/** WARNING: _timePoint will be converted to zoned time in case of bZonedTime = true. */
 		template <class TClock, class TDuration>
 		FDateTime(const std::chrono::time_point<TClock, TDuration>& _timePoint, bool _bZonedTime = false)
 		{
-			Ticks = std::chrono::duration_cast<FTimeBase::TTickDuration>(_timePoint.time_since_epoch()).count();
 			bZonedTime = _bZonedTime;
+			if (bZonedTime)
+			{
+				const std::chrono::sys_time<TDuration> systemTime = std::chrono::clock_cast<std::chrono::system_clock>(_timePoint);
+				const std::chrono::zoned_time zonedTime(std::chrono::current_zone(), systemTime);
+				const std::chrono::system_clock::duration zonedDuration = zonedTime.get_local_time().time_since_epoch();
+
+				Ticks = std::chrono::duration_cast<FTimeBase::TTickDuration>(zonedDuration).count();
+			}
+			else
+			{
+				const std::chrono::sys_time<TDuration> systemTime = std::chrono::clock_cast<std::chrono::system_clock>(_timePoint);
+				Ticks = std::chrono::duration_cast<FTimeBase::TTickDuration>(systemTime.time_since_epoch()).count();
+			}
 		}
+
+		virtual ~FDateTime() override = default;
 
 		JE_API friend std::strong_ordering operator<=>(const FDateTime& _lDateTime, const FDateTime& _rDateTime);
 		JE_API friend bool operator==(const FDateTime& _lDateTime, const FDateTime& _rDateTime);

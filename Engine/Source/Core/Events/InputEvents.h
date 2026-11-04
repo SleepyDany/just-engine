@@ -1,6 +1,10 @@
 #pragma once
 
+#include "CoreDefines.h"
+#include "Types/BaseTypes.h"
 #include "Types/Input.h"
+
+#include <format>
 
 namespace JE
 {

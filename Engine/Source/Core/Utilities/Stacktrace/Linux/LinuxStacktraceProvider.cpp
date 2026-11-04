@@ -1,15 +1,15 @@
-#ifdef JE_PLATFORM_LINUX
+#include "LinuxStacktraceProvider.h"
 
-	#include "LinuxStacktraceProvider.h"
+#include "Assertions/Assert.h"
 
-	#include "Assertions/Assert.h"
+#include <cstdio>
+#include <cstring>
+#include <format>
+#include <memory>
 
-	#include <cxxabi.h>
-	#include <dlfcn.h>
-	#include <execinfo.h>
-
-	#include <cstdio>
-	#include <cstring>
+#include <cxxabi.h>
+#include <dlfcn.h>
+#include <execinfo.h>
 
 JE::FLinuxStacktraceProvider::FLinuxStacktraceProvider()
 	: IStacktraceProvider()
@@ -115,5 +115,3 @@ JE::FStacktraceEntry JE::FLinuxStacktraceProvider::ExtractStacktraceEntry(void* 
 
 	return stacktraceEntry;
 }
-
-#endif // JE_PLATFORM_LINUX

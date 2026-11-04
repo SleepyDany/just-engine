@@ -13,6 +13,7 @@ project(JustEngine
 )
 
 option(JE_USE_SHARED "Build JustEngine as shared library (.dll/.so)." FALSE)
+option(JE_USE_PCH "Build JustEngine with precompiled header" FALSE)
 
 #------------------------------
 # Common options
@@ -51,6 +52,11 @@ set(JE_ENGINE_FILES_PATTERNS
 set(JE_ENGINE_EXCLUDE_PATTERNS
     .*/CoreMain\\.cpp$
 )
+if (WIN32)
+    list(APPEND JE_ENGINE_EXCLUDE_PATTERNS .*/Linux/.*)
+elseif (LINUX)
+    list(APPEND JE_ENGINE_EXCLUDE_PATTERNS .*/Windows/.*)
+endif()
 
 set(JE_ENGINE_SOURCES)
 je_collect_files(${JE_ENGINE_SOURCE_DIR}
@@ -75,10 +81,11 @@ target_include_directories(${PROJECT_NAME}
     ${JE_ENGINE_INCLUDES}
 )
 
-target_precompile_headers(${PROJECT_NAME} PRIVATE Source/Core/CorePch.h)
-target_precompile_headers(${PROJECT_NAME}Exe PRIVATE Source/Core/CorePch.h)
-# je_setup_pch(${PROJECT_NAME} Source/Core/CorePch.cpp Source/Core/CorePch.h JE_ENGINE_SOURCES)
-# je_setup_pch(${PROJECT_NAME}Exe Source/Core/CorePch.cpp Source/Core/CorePch.h Source/Core/CoreMain.cpp)
+if (JE_USE_PCH)
+    target_precompile_headers(${PROJECT_NAME} PRIVATE Source/Core/CorePch.h)
+    target_precompile_headers(${PROJECT_NAME}Exe PRIVATE Source/Core/CorePch.h)
+    # target_precompile_headers(${PROJECT_NAME}Exe REUSE_FROM ${PROJECT_NAME})
+endif()
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
     $<$<CONFIG:Debug>:_DEBUG>

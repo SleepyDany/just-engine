@@ -1,36 +1,16 @@
-#include "Logger.h"
+#include "Log/Logger.h"
 
-#include "Assertions/Check.h"
-#include "Log/LogMisc.h"
-#include "Log/LoggerImpl.h"
+#include "LogMacros.h"
 
-JE::FLogger::FLogger(const FLogCategory& _category,
-	const TLogFormatter& _formatter,
-	const std::vector<std::shared_ptr<FLoggerImpl>>& _loggerImpls)
-	: Category(_category)
-	, Formatter(_formatter)
-	, LoggerImpls(_loggerImpls)
+JE::FLogger::FLogger(const std::string& _id, TLogFormatter _formatter)
+	: Name(_id)
+	, Formatter(std::move(_formatter))
 {
 }
 
-JE::ELogVerbosity JE::FLogger::GetVerbosity() const
+const std::string& JE::FLogger::GetName() const
 {
-	return Category.GetVerbosity();
-}
-
-void JE::FLogger::SetVerbosity(ELogVerbosity _verbosity)
-{
-	Category.SetVerbosity(_verbosity);
-}
-
-JE::FLogCategory& JE::FLogger::GetCategory()
-{
-	return Category;
-}
-
-const JE::FLogCategory& JE::FLogger::GetCategory() const
-{
-	return Category;
+	return Name;
 }
 
 const JE::TLogFormatter& JE::FLogger::GetFormatter() const
@@ -38,40 +18,13 @@ const JE::TLogFormatter& JE::FLogger::GetFormatter() const
 	return Formatter;
 }
 
-void JE::FLogger::SetFormatter(const TLogFormatter& _formatter)
+bool JE::FLogger::IsSupported(const FLogCategory& _category) const
 {
-	Formatter = _formatter;
+	return CategoryFilter.empty() || CategoryFilter.contains(_category.GetName());
 }
 
-void JE::FLogger::Log(const FLogRecord& _logRecord)
+void JE::FLogger::Write(const FLogRecord& _logRecord)
 {
-	const ELogVerbosity verbosity = GetVerbosity();
-	if (_logRecord.Verbosity > verbosity)
-	{
-		return;
-	}
-
-	for (auto& impl : LoggerImpls)
-	{
-		JE_PRIVATE_ASSERT_F(impl, "Invalid logger implementation.");
-		impl->Log(_logRecord);
-	}
-
-	if (verbosity == ELogVerbosity::Fatal)
-	{
-		// TODO: should we use std::abort()?
-		// TODO: __debugbreak() can act as abort if no debugger is attached, how to handle?
-		JE_PLATFORM_BREAK();
-	}
-}
-
-void JE::FLogger::RegisterImpl(const std::shared_ptr<FLoggerImpl>& _logImpl)
-{
-	// TODO: check for duplicates
-	LoggerImpls.emplace_back(_logImpl);
-}
-
-void JE::FLogger::UnregisterImpl(const std::shared_ptr<FLoggerImpl>& _logImpl)
-{
-	LoggerImpls.erase(std::remove(LoggerImpls.begin(), LoggerImpls.end(), _logImpl), LoggerImpls.end());
+	const bool bForceFlush = _logRecord.Verbosity == ELogVerbosity::Error || _logRecord.Verbosity == ELogVerbosity::Fatal;
+	Write(Formatter ? Formatter(_logRecord) : _logRecord.Message, bForceFlush);
 }

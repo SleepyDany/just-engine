@@ -8,6 +8,10 @@
 	#include "Linux/LinuxStacktraceProvider.h"
 #endif
 
+#include <format>
+#include <memory>
+#include <sstream>
+
 JE::IStacktraceProvider::IStacktraceProvider()
 {
 	DefaultFormatter = [](const FStacktraceEntry& _entry)

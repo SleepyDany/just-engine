@@ -308,7 +308,8 @@ void JE::FGlfwWindow::SetFocus(bool bFocus)
 {
 	// TODO: review it later
 	glfwFocusWindow(WindowInstance);
-	// OR glfwSetCurrentContext(WindowInstance); // OpenGL specific?
+	glfwMakeContextCurrent(WindowInstance);
+	glfwSwapInterval(1); // OpenGL specific
 }
 
 void JE::FGlfwWindow::Move(int32 _xCoord, int32 _yCoord)

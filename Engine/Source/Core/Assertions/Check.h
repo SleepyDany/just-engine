@@ -1,43 +1,43 @@
 #pragma once
 
-// TODO: how to define JE_USE_CHECKS? not only debug?
-#define JE_USE_CHECKS
+#include "CoreDefines.h"
 
 #ifdef JE_USE_CHECKS
-
-	#include "CheckManager.h"
-
 	#include "Assertions/Assert.h"
-	#include "CorePch.h"
+	#include "CheckManager.h"
 	#include "Log/Log.h"
 
-JE_DEFINE_LOG_CATEGORY(LogCheck, Error);
+	#include <string_view>
 
 	/** INTERNAL checks implementation. Use JE_CHECK_* instead. */
-	#define JE_PRIVATE_CHECK_CF_IMPL(Expr, Category, Message, ...)                                                     \
-		(!!(Expr) ||                                                                                                   \
-			[&]()                                                                                                      \
-			{                                                                                                          \
-				JE::FCheckManager& checkManager = JE::FCheckManager::Get();                                            \
-				std::string_view messageView(Message);                                                                 \
-				if (checkManager.ShouldPrintToLog() && !messageView.empty())                                           \
-				{                                                                                                      \
-					JE_LOG(Category, Error, Message, __VA_ARGS__);                                                     \
-				}                                                                                                      \
-                                                                                                                       \
-				if (checkManager.ShouldPrintToScreen())                                                                \
-				{                                                                                                      \
-					/** TODO: Implement FCheckManager::PrintToScreen() */                                              \
-					JE_ASSERT_F(false, "FCheckManager::PrintToScreen is not implemented.");                            \
-				}                                                                                                      \
-				JE_LOG(Category, Error, "Check '{}' failed. Stacktrace:\n{}\n", #Expr, checkManager.GetStacktrace(3)); \
-                                                                                                                       \
-				if (checkManager.ShouldBreak())                                                                        \
-				{                                                                                                      \
-					JE_PLATFORM_BREAK();                                                                               \
-				}                                                                                                      \
-                                                                                                                       \
-				return false;                                                                                          \
+	#define JE_PRIVATE_CHECK_CF_IMPL(Expr, Category, Message, ...)                          \
+		(!!(Expr) ||                                                                        \
+			[&]()                                                                           \
+			{                                                                               \
+				JE::FCheckManager& checkManager = JE::FCheckManager::Get();                 \
+				std::string_view messageView(Message);                                      \
+				if (checkManager.ShouldPrintToLog() && !messageView.empty())                \
+				{                                                                           \
+					JE_LOG(Category,                                                        \
+						Error,                                                              \
+						"Check '{}' failed: {}\nStacktrace:\n{}\n",                         \
+						#Expr,                                                              \
+						messageView,                                                        \
+						checkManager.GetStacktrace(3));                                     \
+				}                                                                           \
+                                                                                            \
+				if (checkManager.ShouldPrintToScreen())                                     \
+				{                                                                           \
+					/** TODO: Implement FCheckManager::PrintToScreen() */                   \
+					JE_ASSERT_F(false, "FCheckManager::PrintToScreen is not implemented."); \
+				}                                                                           \
+                                                                                            \
+				if (checkManager.ShouldBreak())                                             \
+				{                                                                           \
+					JE_PLATFORM_BREAK();                                                    \
+				}                                                                           \
+                                                                                            \
+				return false;                                                               \
 			}())
 
 // Simple checks

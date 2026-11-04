@@ -3,6 +3,8 @@
 #include "Assert.h"
 #include "Utilities/Stacktrace/StacktraceProvider.h"
 
+#include <sstream>
+
 JE::FCheckManager& JE::FCheckManager::Get()
 {
 	// TODO: define how to setup/configure check manager

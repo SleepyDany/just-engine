@@ -1,12 +1,14 @@
-#ifdef JE_PLATFORM_WINDOWS
-	#include "WindowsStacktraceProvider.h"
+#include "WindowsStacktraceProvider.h"
 
-	#include "Assertions/Assert.h"
+#include "Assertions/Assert.h"
+
+#include <format>
+#include <sstream>
 
 // clang-format off
-	// include order is important
-	#include <windows.h>
-	#include <dbghelp.h>
+// include order is important
+#include <windows.h>
+#include <dbghelp.h>
 // clang-format on
 
 void JE::FWindowsStacktraceProvider::CollectStacktrace(uint32 _stacktraceDepth, uint32 _skipFirstEntryCount)
@@ -141,5 +143,3 @@ JE::FStacktraceEntry JE::FWindowsStacktraceProvider::ExtractStacktraceEntry(void
 
 	return stacktraceEntry;
 }
-
-#endif // JE_PLATFORM_WINDOWS

@@ -1,6 +1,12 @@
 #pragma once
 
 #include "Assertions/Assert.h"
+#include "Types/BaseTypes.h"
+
+#include <atomic>
+#include <functional>
+#include <memory>
+#include <utility>
 
 namespace JE
 {

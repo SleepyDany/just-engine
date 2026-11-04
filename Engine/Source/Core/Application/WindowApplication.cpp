@@ -3,15 +3,6 @@
 #include "Engine.h"
 #include "Window/Window.h"
 
-JE::FWindowApplication::FWindowApplication()
-{
-}
-
-JE::FWindowApplication::~FWindowApplication()
-{
-	FApplication::~FApplication();
-}
-
 bool JE::FWindowApplication::Initialize()
 {
 	FWindowProperties windowProperties{
@@ -82,7 +73,7 @@ std::shared_ptr<JE::IWindow> JE::FWindowApplication::GetCurrentWindow() const
 
 void JE::FWindowApplication::AddWindow(const std::shared_ptr<IWindow>& _window)
 {
-	JE_CHECK_RETURN_CF(_window, , LogApplication, "Couldn't add invalid window to application.");
+	JE_CHECK_RETURN_CF(_window, void(), LogApplication, "Couldn't add invalid window to application.");
 
 	gEngine->GetGlobalDelegate(EEventType::WindowClosed).AddSP(_window, &IWindow::OnClosed);
 	gEngine->GetGlobalDelegate(EEventType::WindowResized).AddSP(_window, &IWindow::OnResized);

@@ -2,42 +2,61 @@
 
 #include "LogMisc.h"
 #include "Logger.h"
-#include "LoggerImpl.h"
+#include "Types/Time/Timespan.h"
+
+#include <atomic>
+#include <condition_variable>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <set>
+#include <thread>
 
 namespace JE
 {
-	// TODO: rework loggers creation by manager
-	// TODO: add loggers custom impls creation/registration + macro
-
 	class JE_API FLogManager // TODO : public FNonCopyable
 	{
 		//- Variables --------------------
 	protected:
-		std::unordered_map<FLoggerImpl::ID, std::shared_ptr<FLoggerImpl>> LoggerImpls;
-
-		std::unordered_map<FLogCategory::ID, FLogger> Loggers;
-
-		/** Default logger's implementations. */
-		std::vector<std::shared_ptr<FLoggerImpl>> DefaultLoggerImpls;
+		std::set<std::shared_ptr<FLogger>> Loggers;
 
 		/** Default logger's formatter. */
 		TLogFormatter DefaultFormatter;
+
+	private:
+		std::queue<FLogRecord> RecordsQueue;
+
+		std::mutex QueueMutex;
+		std::thread LogThread;
+
+		FTimespan FlushPeriod;
+		std::condition_variable QueueCV;
+		std::atomic_bool bStop;
 
 		//- Lifecycle --------------------
 	protected:
 		FLogManager();
 		~FLogManager();
 
+	public:
+		void Initialize();
+		void Shutdown();
+
 		//- Methods ----------------------
 	public:
 		static FLogManager& Get();
 
-		FLogger& GetLogger(const FLogCategory& _logCategory);
+		TLogFormatter GetDefaultFormatter() const;
 
-		std::shared_ptr<FLoggerImpl> GetLoggerImpl(const FLoggerImpl::ID& _implId) const;
+		std::shared_ptr<FLogger> GetLogger(const std::string& _name);
+		void AddLogger(const std::shared_ptr<FLogger>& _logger);
+		bool RemoveLogger(const std::shared_ptr<FLogger>& _logger);
 
-		/** Transfer implementation's raw pointer control to manager. It will be handled and deleted properly here. */
-		std::shared_ptr<FLoggerImpl> RegisterLoggerImpl(FLoggerImpl* _loggerImpl);
+		void Log(const FLogRecord& _logRecord);
+		void Flush();
+
+	private:
+		void ProcessRecords();
 	};
 
 } // namespace JE

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "CoreDefines.h"
+#include "Types/BaseTypes.h"
+
 #include <chrono>
 
 namespace JE
@@ -31,6 +34,7 @@ namespace JE
 		/** Use children classes instead. */
 		FTimeBase() = default;
 		explicit FTimeBase(int64 _ticks);
+		virtual ~FTimeBase() = default;
 
 		//- Methods ----------------------
 	public:

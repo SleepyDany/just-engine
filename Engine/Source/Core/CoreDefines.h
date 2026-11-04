@@ -53,3 +53,15 @@
 #elif defined(JE_COMPILER_GCC) || defined(JE_COMPILER_CLANG)
 	#define JE_DEPRECATED(Message) __attribute__((deprecated(Message)))
 #endif
+
+// Asserts/checks
+
+// TODO: clarify conditions for JE_USE_ASSERTS
+#if JE_DEBUG && !defined(JE_USE_ASSERTS)
+	#define JE_USE_ASSERTS
+#endif
+
+// TODO: clarify conditions for JE_USE_CHECKS
+#ifndef JE_USE_CHECKS
+	#define JE_USE_CHECKS
+#endif
