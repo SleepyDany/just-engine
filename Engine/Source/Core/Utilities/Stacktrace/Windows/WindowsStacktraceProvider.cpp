@@ -3,6 +3,7 @@
 #include "Assertions/Assert.h"
 
 #include <format>
+#include <sstream>
 
 // clang-format off
 // include order is important

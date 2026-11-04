@@ -4,6 +4,8 @@
 
 #include <cstdio>
 #include <cstring>
+#include <format>
+#include <memory>
 
 #include <cxxabi.h>
 #include <dlfcn.h>
